@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/night_black"
+    android:keepScreenOn="true">
+
+    <!-- ================================================================= -->
+    <!-- LAYER 1: Android WebView (Living Weather Horizon / Lovelace)      -->
+    <!-- ================================================================= -->
+    <WebView
+        android:id="@+id/webViewLivingHorizon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <!-- ================================================================= -->
+    <!-- LAYER 2: Night & Offline Native Overlay (Nero puro + Ambra Caldo) -->
+    <!-- ================================================================= -->
+    <FrameLayout
+        android:id="@+id/layerNightOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/night_black"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/nightContentContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <!-- Badge Sveglia Prossima (es. 🔔 07:30) -->
+            <TextView
+                android:id="@+id/tvNightAlarmBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.85"
+                android:letterSpacing="0.08"
+                android:textColor="@color/amber_warm_red"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                tools:text="🔔 07:30" />
+
+            <!-- Orologio Notturno 24h a caratteri giganti -->
+            <TextClock
+                android:id="@+id/tcNightClock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.70"
+                android:format12Hour="HH:mm"
+                android:format24Hour="HH:mm"
+                android:includeFontPadding="false"
+                android:letterSpacing="-0.04"
+                android:textColor="@color/amber_primary"
+                android:textSize="138sp"
+                android:textStyle="bold"
+                tools:text="23:45" />
+
+            <!-- Temperatura Esterna Cache HA -->
+            <TextView
+                android:id="@+id/tvNightExternalTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-10dp"
+                android:alpha="0.65"
+                android:textColor="@color/amber_secondary"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                tools:text="11.2°C" />
+
+            <!-- Avviso Offline (visibile solo se HA è irraggiungibile) -->
+            <TextView
+                android:id="@+id/tvNightOfflineStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="#26DC2626"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="Offline • Sveglia Locale Attiva"
+                android:textColor="#EF4444"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- ================================================================= -->
+    <!-- LAYER 3: Alarm Ringing Native UI (Visibile quando la sveglia suona)-->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/layerAlarmRinging"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/night_black"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <!-- Sezione Snooze (+10 min) -->
+        <FrameLayout
+            android:id="@+id/btnAlarmSnooze"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="12dp"
+            android:layout_weight="1.2"
+            android:background="@color/alarm_snooze_bg"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAlarmRingingTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/alarm_snooze_text"
+                    android:textSize="38sp"
+                    android:textStyle="bold"
+                    tools:text="07:30" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/snooze_btn"
+                    android:textColor="@color/alarm_snooze_text"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- Sezione Stop Sveglia -->
+        <FrameLayout
+            android:id="@+id/btnAlarmStop"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/alarm_stop_bg"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/stop_alarm_btn"
+                android:textColor="@color/alarm_stop_text"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- LAYER 4: Settings / Provisioning Overlay (5-tap o primo avvio)    -->
+    <!-- ================================================================= -->
+    <ScrollView
+        android:id="@+id/layerSettings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/settings_bg"
+        android:padding="20dp"
+        android:visibility="gone"
+        tools:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Intestazione -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_title"
+                android:textColor="@color/settings_text_primary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <!-- Banner Web Server Info -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@color/settings_card"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/tvSettingsWebServerInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Web Configurator: http://0.0.0.0:8080"
+                    android:textColor="@color/settings_accent"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvSettingsDiagnostic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Stato: WS sconosciuto • Lux: --"
+                    android:textColor="@color/settings_text_secondary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Form Rapido HA URL -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Home Assistant URL:"
+                android:textColor="@color/settings_text_secondary"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etHaUrl"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/settings_card"
+                android:hint="@string/ha_url_hint"
+                android:inputType="textUri"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@color/settings_text_primary"
+                android:textColorHint="@color/settings_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Form Rapido HA Token -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Long-Lived Access Token:"
+                android:textColor="@color/settings_text_secondary"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etHaToken"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@color/settings_card"
+                android:hint="@string/ha_token_hint"
+                android:inputType="textPassword"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textColor="@color/settings_text_primary"
+                android:textColorHint="@color/settings_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Pulsanti Azione -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnSaveSettings"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/settings_btn_save"
+                    android:text="@string/save_btn"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
+                <Space
+                    android:layout_width="12dp"
+                    android:layout_height="1dp" />
+
+                <Button
+                    android:id="@+id/btnReloadWebview"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/settings_card"
+                    android:text="@string/reload_webview_btn"
+                    android:textColor="@color/settings_accent" />
+
+                <Space
+                    android:layout_width="12dp"
+                    android:layout_height="1dp" />
+
+                <Button
+                    android:id="@+id/btnOpenWifiSettings"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/settings_card"
+                    android:text="@string/wifi_settings_btn"
+                    android:textColor="@color/settings_text_primary" />
+
+                <Space
+                    android:layout_width="12dp"
+                    android:layout_height="1dp" />
+
+                <Button
+                    android:id="@+id/btnCloseSettings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:backgroundTint="#475569"
+                    android:text="CHIUDI"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ================================================================= -->
+    <!-- TARGET SEGRETO 5-TAP (Area 120x120 px in alto a sinistra)         -->
+    <!-- ================================================================= -->
+    <View
+        android:id="@+id/viewSecretTapTarget"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="top|start"
+        android:background="#00000000"
+        android:clickable="true"
+        android:focusable="false" />
+
+</FrameLayout>

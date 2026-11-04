@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colori Notturni Anti-Luce Blu (Spettro Caldo) -->
+    <color name="night_black">#000000</color>
+    <color name="amber_primary">#B45309</color>
+    <color name="amber_secondary">#D97706</color>
+    <color name="amber_warm_red">#9A3412</color>
+    <color name="amber_glow">#FBBF24</color>
+
+    <!-- Sveglia Attiva (Layer 3) -->
+    <color name="alarm_snooze_bg">#F59E0B</color>
+    <color name="alarm_snooze_text">#1E293B</color>
+    <color name="alarm_stop_bg">#DC2626</color>
+    <color name="alarm_stop_text">#FFFFFF</color>
+
+    <!-- UI Settings (Layer 4) -->
+    <color name="settings_bg">#0F172A</color>
+    <color name="settings_card">#1E293B</color>
+    <color name="settings_text_primary">#F8FAFC</color>
+    <color name="settings_text_secondary">#94A3B8</color>
+    <color name="settings_accent">#38BDF8</color>
+    <color name="settings_btn_save">#10B981</color>
+</resources>

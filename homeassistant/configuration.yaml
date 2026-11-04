@@ -1,0 +1,63 @@
+# ==============================================================================
+# Configurazione Home Assistant per Aura Clock (Xiaomi Mi Smart Clock X04G)
+# Incollare questi blocchi nel proprio configuration.yaml di Home Assistant
+# ==============================================================================
+
+# 1. Sensore orario di sistema (fondamentale per aggiornare il minuto dell'orologio custom)
+sensor:
+  - platform: time_date
+    display_options:
+      - "time"
+      - "date"
+
+# 2. Helpers Sveglia Comodino
+input_boolean:
+  sveglia_comodino_attiva:
+    name: "Sveglia Comodino Attiva"
+    icon: mdi:alarm
+
+input_datetime:
+  sveglia_comodino_orario:
+    name: "Orario Sveglia Comodino"
+    has_date: false
+    has_time: true
+    initial: "07:30:00"
+
+# 3. Script per aumentare/diminuire l'ora della sveglia dalla vista "/orario"
+script:
+  sveglia_comodino_cambia_ora:
+    alias: "Regola Orario Sveglia Comodino"
+    fields:
+      minuti_delta:
+        description: "Minuti da aggiungere o sottrarre (es. 5, -5, 60, -60)"
+    sequence:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.sveglia_comodino_orario
+        data:
+          time: >
+            {% set t = states('input_datetime.sveglia_comodino_orario') %}
+            {% set ts = today_at(t).timestamp() + (minuti_delta | int * 60) %}
+            {{ ts | timestamp_custom('%H:%M:00', true) }}
+
+# 4. Sensore Min/Max Giornaliero compatibile con weather.get_forecasts (HA 2024+)
+template:
+  - trigger:
+      - platform: time_pattern
+        minutes: "/30"
+      - platform: homeassistant
+        event: start
+    action:
+      - service: weather.get_forecasts
+        data:
+          type: daily
+        target:
+          entity_id: weather.casa
+        response_variable: daily_forecast
+    sensor:
+      - name: "Meteo Comodino MinMax"
+        unique_id: meteo_comodino_minmax
+        state: "{{ states('weather.casa') }}"
+        attributes:
+          temp_min: "{{ daily_forecast['weather.casa'].forecast[0].templow | default('--') }}"
+          temp_max: "{{ daily_forecast['weather.casa'].forecast[0].temperature | default('--') }}"

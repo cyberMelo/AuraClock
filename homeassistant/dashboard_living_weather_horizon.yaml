@@ -1,0 +1,287 @@
+# ==============================================================================
+# Dashboard Lovelace: Living Weather Horizon (800x480) per Aura Clock
+# Richiede componenti HACS: custom:button-card, custom:layout-card, kiosk-mode
+# ==============================================================================
+
+kiosk_mode:
+  hide_header: true
+  hide_sidebar: true
+
+views:
+  # =========================================================================
+  # VISTA 0: "LIVING WEATHER HORIZON" (Full-Canvas 800x480)
+  # =========================================================================
+  - title: Comodino
+    path: "0"
+    type: custom:grid-layout
+    layout:
+      grid-template-columns: 800px
+      grid-template-rows: 480px
+      padding: 0
+      margin: 0
+      height: 480px
+      width: 800px
+      overflow: hidden
+    cards:
+      - type: custom:button-card
+        entity: weather.casa
+        triggers_update:
+          - sensor.time
+          - sensor.temperatura_esterna
+          - sensor.meteo_comodino_minmax
+          - input_boolean.sveglia_comodino_attiva
+          - input_datetime.sveglia_comodino_orario
+        show_icon: false
+        show_name: false
+        tap_action:
+          action: call-service
+          service: input_boolean.toggle
+          target:
+            entity_id: input_boolean.sveglia_comodino_attiva
+        hold_action:
+          action: navigate
+          navigation_path: "/lovelace-comodino/orario"
+        styles:
+          card:
+            - width: 800px
+            - height: 480px
+            - border-radius: 0px
+            - border: none
+            - padding: 0
+            - position: relative
+            - overflow: hidden
+            - background: |
+                [[[
+                  const w = entity.state;
+                  if (w === 'rainy' || w === 'pouring')
+                    return 'radial-gradient(circle at 50% 0%, rgba(30,64,175,0.48) 0%, rgba(15,23,42,0.88) 60%, #050811 100%)';
+                  if (w === 'lightning-rainy' || w === 'lightning')
+                    return 'radial-gradient(circle at 70% 15%, rgba(124,58,237,0.35) 0%, rgba(17,24,39,0.92) 55%, #04060c 100%)';
+                  if (w === 'clear-night')
+                    return 'radial-gradient(circle at 80% 20%, rgba(99,102,241,0.26) 0%, rgba(15,23,42,0.65) 50%, #03050a 100%)';
+                  return 'radial-gradient(circle at 82% 22%, rgba(251,191,36,0.35) 0%, rgba(56,189,248,0.18) 45%, #070b14 90%)';
+                ]]]
+        extra_styles: |
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
+          @keyframes softBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+          .horizon-stage {
+            font-family: 'Outfit', sans-serif;
+            width: 800px;
+            height: 480px;
+            padding: 24px 32px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+          }
+          .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .glass-pill {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #e2e8f0;
+            text-transform: uppercase;
+          }
+          .weather-badge {
+            background: rgba(15, 23, 42, 0.48);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #f8fafc;
+          }
+          .hero-clock {
+            text-align: center;
+            font-size: 168px;
+            font-weight: 800;
+            line-height: 0.9;
+            letter-spacing: -6px;
+            color: #ffffff;
+            text-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+            margin: -6px 0;
+          }
+          .bottom-dock {
+            height: 104px;
+            background: rgba(15, 23, 42, 0.62);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 30px;
+            padding: 10px 14px 10px 26px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+          }
+        custom_fields:
+          horizon_view: |
+            [[[
+              const now = new Date();
+              const giorni = ['DOMENICA','LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO'];
+              const mesi = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+              const dateStr = `${giorni[now.getDay()]} ${now.getDate()} ${mesi[now.getMonth()]}`;
+              
+              const hh = String(now.getHours()).padStart(2, '0');
+              const mm = String(now.getMinutes()).padStart(2, '0');
+
+              const temp = parseFloat(states['sensor.temperatura_esterna']?.state || 0).toFixed(1);
+              const minMaxAttrs = states['sensor.meteo_comodino_minmax']?.attributes || {};
+              const tMin = minMaxAttrs.temp_min ?? '--';
+              const tMax = minMaxAttrs.temp_max ?? '--';
+
+              const wState = entity.state;
+              const mapMeteo = {
+                'sunny': ['Soleggiato', '☀️'],
+                'clear-night': ['Sereno', '🌙'],
+                'partlycloudy': ['Poco Nuvoloso', '⛅'],
+                'cloudy': ['Nuvoloso', '☁️'],
+                'rainy': ['Pioggia', '🌧️'],
+                'pouring': ['Pioggia Forte', '⛈️'],
+                'lightning-rainy': ['Temporale', '⛈️']
+              };
+              const [desc, icon] = mapMeteo[wState] || ['Variabile', '⛅'];
+
+              const alarmOn = states['input_boolean.sveglia_comodino_attiva']?.state === 'on';
+              const alarmRaw = states['input_datetime.sveglia_comodino_orario']?.state || '07:30:00';
+              const alarmTime = alarmRaw.substring(0, 5);
+
+              return `
+                <div class="horizon-stage">
+                  <div class="top-row">
+                    <div class="glass-pill">📅 ${dateStr}</div>
+                    <div class="weather-badge">${icon} ${desc}</div>
+                  </div>
+
+                  <div class="hero-clock">
+                    <span>${hh}</span><span style="color:#38bdf8; animation:softBlink 2s infinite;">:</span><span style="background:linear-gradient(180deg,#ffffff 20%,#93c5fd 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${mm}</span>
+                  </div>
+
+                  <div class="bottom-dock">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                      <div style="display:flex; align-items:baseline;">
+                        <span style="font-size:62px; font-weight:800; line-height:1; letter-spacing:-2px; background:linear-gradient(90deg,#ffffff,#fed7aa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${isNaN(temp) ? '--' : temp}</span>
+                        <span style="font-size:26px; font-weight:700; color:#fb923c; margin-left:2px;">°C</span>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:2px; border-left:2px solid rgba(255,255,255,0.12); padding-left:16px;">
+                        <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#94a3b8;">Temp. Esterna</span>
+                        <div style="font-size:16px; font-weight:700;">
+                          <span style="color:#38bdf8;">↓ ${tMin}°</span>
+                          <span style="color:#64748b; margin:0 6px;">|</span>
+                          <span style="color:#fb923c;">↑ ${tMax}°</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="height:78px; min-width:250px; border-radius:20px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:${alarmOn ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : 'rgba(30, 41, 59, 0.85)'}; border:1px solid ${alarmOn ? 'rgba(254, 215, 170, 0.4)' : 'rgba(255,255,255,0.08)'}; box-shadow:${alarmOn ? '0 6px 20px rgba(245, 158, 11, 0.35)' : 'none'}; color:#ffffff;">
+                      <div style="display:flex; flex-direction:column; text-align:left;">
+                        <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:0.9;">${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA SPENTA'}</span>
+                        <span style="font-size:30px; font-weight:800; line-height:1.1;">${alarmTime}</span>
+                      </div>
+                      <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                        ${alarmOn ? '🔔' : '🔕'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            ]]]
+
+  # =========================================================================
+  # VISTA 1: SELETTORE ORARIO SVEGLIA A TUTTO SCHERMO (800x480)
+  # =========================================================================
+  - title: Imposta Orario Sveglia
+    path: "orario"
+    type: custom:grid-layout
+    layout:
+      grid-template-columns: 1fr 1.3fr 1fr
+      grid-template-rows: 1fr 1fr 110px
+      grid-gap: 16px
+      padding: 20px
+      height: 480px
+      width: 800px
+      background: "#07090e"
+    cards:
+      - type: custom:button-card
+        name: "+1 ORA"
+        view_layout: { grid-column: "1 / 2", grid-row: "1 / 2" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: 60 }
+        styles:
+          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#38bdf8", font-size: 28px, font-weight: 800]
+
+      - type: custom:button-card
+        name: "-1 ORA"
+        view_layout: { grid-column: "1 / 2", grid-row: "2 / 3" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: -60 }
+        styles:
+          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#38bdf8", font-size: 28px, font-weight: 800]
+
+      - type: custom:button-card
+        entity: input_datetime.sveglia_comodino_orario
+        view_layout: { grid-column: "2 / 3", grid-row: "1 / 3" }
+        show_icon: false
+        show_name: false
+        styles:
+          card: [height: 100%, border-radius: 26px, background: "#0f172a", border: "2px solid #f59e0b"]
+        custom_fields:
+          time_val: |
+            [[[
+              const t = (entity.state || '07:30:00').substring(0, 5);
+              return `<div style="font-size:78px; font-weight:800; color:#ffffff;">${t}</div>`;
+            ]]]
+
+      - type: custom:button-card
+        name: "+5 MIN"
+        view_layout: { grid-column: "3 / 4", grid-row: "1 / 2" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: 5 }
+        styles:
+          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#fb923c", font-size: 28px, font-weight: 800]
+
+      - type: custom:button-card
+        name: "-5 MIN"
+        view_layout: { grid-column: "3 / 4", grid-row: "2 / 3" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: -5 }
+        styles:
+          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#fb923c", font-size: 28px, font-weight: 800]
+
+      - type: custom:button-card
+        name: "✓ CONFERMA ORARIO"
+        view_layout: { grid-column: "1 / 4", grid-row: "3 / 4" }
+        tap_action:
+          action: navigate
+          navigation_path: "/lovelace-comodino/0"
+        styles:
+          card:
+            - height: 100%
+            - border-radius: 22px
+            - background: linear-gradient(135deg, #10b981, #059669)
+            - color: "#ffffff"
+            - font-size: 26px
+            - font-weight: 800

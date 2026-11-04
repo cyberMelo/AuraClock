@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Aura Clock</string>
+    <string name="snooze_btn">SNOOZE (+10 MIN)</string>
+    <string name="stop_alarm_btn">STOP SVEGLIA</string>
+    <string name="settings_title">Aura Clock - Configurazione</string>
+    <string name="save_btn">SALVA</string>
+    <string name="reload_webview_btn">Ricarica Dashboard</string>
+    <string name="wifi_settings_btn">Impostazioni Wi-Fi</string>
+    <string name="first_run_info">Configura Aura Clock tramite browser collegandoti a:</string>
+    <string name="ha_url_hint">http://192.168.1.100:8123</string>
+    <string name="ha_token_hint">Long-Lived Access Token</string>
+</resources>
