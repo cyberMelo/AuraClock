@@ -453,15 +453,49 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         binding.webViewLivingHorizon.evaluateJavascript(js, null)
     }
 
-    // --- Alba Artificiale (Sunrise) ---
+    // --- Alba Artificiale (Sunrise Pre-Sveglia) ---
+
+    private var sunriseJob: Job? = null
 
     private fun triggerSunriseRamp() {
         runOnUiThread {
-            Log.i(TAG, "Avvio Alba Artificiale (Sunrise)")
-            // Rampa progressiva di luminosità da 0.01f a 0.80f su 10 minuti
-            setWindowBrightness(0.35f)
-            binding.layerNightOverlay.setBackgroundColor(Color.parseColor("#451A03")) // Oro/Ambra scuro
+            Log.i(TAG, "Avvio Alba Artificiale progressiva (Sunrise)")
+            stopSunriseRamp()
+
+            val durationMin = appConfig.sunriseDurationMin
+            if (durationMin <= 0) return@runOnUiThread
+
+            val totalDurationMs = durationMin * 60 * 1000L
+            val startTime = System.currentTimeMillis()
+
+            sunriseJob = mainScope.launch {
+                while (isActive) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val progress = (elapsed.toFloat() / totalDurationMs).coerceIn(0f, 1f)
+
+                    // Rampa luminosità display da 0.01f (1%) a 0.80f (80%)
+                    val currentBrightness = 0.01f + progress * (0.80f - 0.01f)
+                    setWindowBrightness(currentBrightness)
+
+                    // Sfumatura colore fondo Layer 2 da nero puro a oro/ambra caldo d'alba
+                    val blendedColor = androidx.core.graphics.ColorUtils.blendARGB(
+                        Color.BLACK,
+                        Color.parseColor("#78350F"),
+                        progress
+                    )
+                    binding.layerNightOverlay.setBackgroundColor(blendedColor)
+
+                    if (progress >= 1f) break
+                    delay(3000L) // Aggiorna ogni 3 secondi per fluidità ottimale
+                }
+            }
         }
+    }
+
+    private fun stopSunriseRamp() {
+        sunriseJob?.cancel()
+        sunriseJob = null
+        binding.layerNightOverlay.setBackgroundColor(Color.BLACK)
     }
 
     // --- Anti-burn-in Pixel Shift ---
@@ -496,10 +530,14 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
     private fun triggerAlarmRingingUi() {
         runOnUiThread {
             isAlarmRinging = true
+            stopSunriseRamp()
             setWindowBrightness(0.90f)
 
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             binding.tvAlarmRingingTime.text = sdf.format(Calendar.getInstance().time)
+
+            val extTemp = coreService?.stateCache?.extTemp ?: "--"
+            binding.tvAlarmExtTemp.text = if (extTemp.contains("🌡️")) extTemp else "🌡️ $extTemp"
 
             binding.layerAlarmRinging.visibility = View.VISIBLE
             binding.layerNightOverlay.visibility = View.GONE
@@ -511,6 +549,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         runOnUiThread {
             Log.i(TAG, "Azione SNOOZE sveglia")
             isAlarmRinging = false
+            stopSunriseRamp()
             binding.layerAlarmRinging.visibility = View.GONE
 
             // Ferma suoneria
@@ -537,6 +576,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         runOnUiThread {
             Log.i(TAG, "Azione STOP sveglia")
             isAlarmRinging = false
+            stopSunriseRamp()
             binding.layerAlarmRinging.visibility = View.GONE
 
             // Ferma suoneria

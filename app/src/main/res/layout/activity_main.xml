@@ -93,74 +93,219 @@
     </FrameLayout>
 
     <!-- ================================================================= -->
-    <!-- LAYER 3: Alarm Ringing Native UI (Visibile quando la sveglia suona)-->
+    <!-- LAYER 3: Alarm Ringing Native UI (Proposta A: Aura Sunrise Dock)  -->
     <!-- ================================================================= -->
     <LinearLayout
         android:id="@+id/layerAlarmRinging"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/night_black"
+        android:background="@drawable/bg_alarm_sunrise_radial"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:paddingStart="28dp"
+        android:paddingTop="22dp"
+        android:paddingEnd="28dp"
+        android:paddingBottom="16dp"
         android:visibility="gone"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
-        <!-- Sezione Snooze (+10 min) -->
-        <FrameLayout
-            android:id="@+id/btnAlarmSnooze"
+        <!-- Top Header: Badge Sveglia & Temp Esterna -->
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="12dp"
-            android:layout_weight="1.2"
-            android:background="@color/alarm_snooze_bg"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_height="wrap_content">
 
             <LinearLayout
+                android:id="@+id/llAlarmHeaderBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_alignParentStart="true"
+                android:background="@drawable/bg_alarm_badge_ringing"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="6dp">
 
                 <TextView
-                    android:id="@+id/tvAlarmRingingTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/alarm_snooze_text"
-                    android:textSize="38sp"
+                    android:text="🔔 SVEGLIA IN CORSO"
+                    android:textColor="#FDE68A"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                    tools:text="07:30" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/snooze_btn"
-                    android:textColor="@color/alarm_snooze_text"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
+                    android:letterSpacing="0.08" />
             </LinearLayout>
-        </FrameLayout>
 
-        <!-- Sezione Stop Sveglia -->
-        <FrameLayout
-            android:id="@+id/btnAlarmStop"
+            <TextView
+                android:id="@+id/tvAlarmExtTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/bg_alarm_badge_temp"
+                android:paddingStart="16dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="6dp"
+                android:textColor="#E2E8F0"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="🌡️ 14.5°C" />
+        </RelativeLayout>
+
+        <!-- Centro: Orologio Gigante con Alone Caldo d'Alba -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@color/alarm_stop_bg"
-            android:clickable="true"
-            android:focusable="true">
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvAlarmRingingTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:letterSpacing="-0.05"
+                android:shadowColor="#80F59E0B"
+                android:shadowDx="0"
+                android:shadowDy="10"
+                android:shadowRadius="35"
+                android:textColor="#FFFFFF"
+                android:textSize="142sp"
+                android:textStyle="bold"
+                tools:text="07:30" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/stop_alarm_btn"
-                android:textColor="@color/alarm_stop_text"
-                android:textSize="30sp"
+                android:layout_marginTop="-4dp"
+                android:alpha="0.85"
+                android:letterSpacing="0.12"
+                android:text="SVEGLIA COMODINO • SVEGLIATI DOLCEMENTE"
+                android:textColor="#FED7AA"
+                android:textSize="13sp"
                 android:textStyle="bold" />
-        </FrameLayout>
+        </LinearLayout>
+
+        <!-- Basso: Dock Comandi Satinati (Snooze + Stop) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="96dp"
+                android:orientation="horizontal">
+
+                <!-- SNOOZE CARD (Grande, Ambra Caldo) -->
+                <FrameLayout
+                    android:id="@+id/btnAlarmSnooze"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="14dp"
+                    android:layout_weight="1.35"
+                    android:background="@drawable/bg_alarm_pill_amber"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="22dp"
+                    android:paddingEnd="20dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|start"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SNOOZE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.05" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+10 Minuti di Riposo"
+                            android:textColor="#FEF3C7"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.08" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:background="@drawable/bg_circle_icon_amber"
+                        android:gravity="center"
+                        android:text="💤"
+                        android:textSize="22sp" />
+                </FrameLayout>
+
+                <!-- STOP CARD (Vetro Scuro Satinato + Contorno Corallo) -->
+                <FrameLayout
+                    android:id="@+id/btnAlarmStop"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.0"
+                    android:background="@drawable/bg_alarm_pill_stop"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="16dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|start"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="STOP SVEGLIA"
+                            android:textColor="#F87171"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Spegni per oggi"
+                            android:textColor="#94A3B8"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.06" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center_vertical|end"
+                        android:background="@drawable/bg_circle_icon_stop"
+                        android:gravity="center"
+                        android:text="🛑"
+                        android:textSize="16sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Hint Tasti Fisici -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:letterSpacing="0.08"
+                android:text="OPPURE PREMI VOL PER SNOOZE • TASTO CENTRALE PER STOP"
+                android:textColor="#64748B"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- ================================================================= -->
