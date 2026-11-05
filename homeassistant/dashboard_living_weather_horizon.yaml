@@ -1,5 +1,6 @@
 # ==============================================================================
 # Dashboard Lovelace: Living Weather Horizon (800x480) per Aura Clock
+# Basato su Proposta 1 (Full Canvas Living Horizon)
 # Richiede componenti HACS: custom:button-card, custom:layout-card, kiosk-mode
 # ==============================================================================
 
@@ -9,7 +10,7 @@ kiosk_mode:
 
 views:
   # =========================================================================
-  # VISTA 0: "LIVING WEATHER HORIZON" (Full-Canvas 800x480)
+  # VISTA 0: PROPOSTA 1 - "LIVING WEATHER HORIZON" (Full-Canvas 800x480)
   # =========================================================================
   - title: Comodino
     path: "0"
@@ -54,37 +55,138 @@ views:
                 [[[
                   const w = entity.state;
                   if (w === 'rainy' || w === 'pouring')
-                    return 'radial-gradient(circle at 50% 0%, rgba(30,64,175,0.48) 0%, rgba(15,23,42,0.88) 60%, #050811 100%)';
+                    return 'radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.45) 0%, rgba(15, 23, 42, 0.85) 60%, #050811 100%)';
                   if (w === 'lightning-rainy' || w === 'lightning')
-                    return 'radial-gradient(circle at 70% 15%, rgba(124,58,237,0.35) 0%, rgba(17,24,39,0.92) 55%, #04060c 100%)';
+                    return 'radial-gradient(circle at 70% 15%, rgba(124, 58, 237, 0.32) 0%, rgba(17, 24, 39, 0.9) 55%, #04060c 100%)';
                   if (w === 'clear-night')
-                    return 'radial-gradient(circle at 80% 20%, rgba(99,102,241,0.26) 0%, rgba(15,23,42,0.65) 50%, #03050a 100%)';
-                  return 'radial-gradient(circle at 82% 22%, rgba(251,191,36,0.35) 0%, rgba(56,189,248,0.18) 45%, #070b14 90%)';
+                    return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a 100%)';
+                  return 'radial-gradient(circle at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';
                 ]]]
         extra_styles: |
-          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
-          @keyframes softBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-          }
-          .horizon-stage {
-            font-family: 'Outfit', sans-serif;
-            width: 800px;
-            height: 480px;
-            padding: 24px 32px;
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
+
+          * {
             box-sizing: border-box;
+            user-select: none;
+          }
+
+          /* STAGE METEO ANIMATO A TUTTO SCHERMO */
+          .weather-stage {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+          }
+
+          /* Bagliore Solare */
+          .sun-orb {
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(253, 224, 71, 0.9) 0%, rgba(251, 146, 60, 0.45) 45%, rgba(251, 146, 60, 0) 72%);
+            filter: blur(8px);
+            animation: sunPulse 5s ease-in-out infinite alternate;
+            transition: opacity 0.6s ease;
+          }
+
+          @keyframes sunPulse {
+            0% { transform: scale(0.92); }
+            100% { transform: scale(1.08); }
+          }
+
+          /* Nuvole Vettoriali Fluttuanti */
+          .cloud-layer {
+            position: absolute;
+            fill: rgba(255, 255, 255, 0.14);
+            filter: blur(1px);
+            transition: opacity 0.6s ease, fill 0.6s ease;
+          }
+          .cloud-1 {
+            width: 420px;
+            top: 30px;
+            right: -60px;
+            animation: driftSlow 16s ease-in-out infinite alternate;
+          }
+          .cloud-2 {
+            width: 340px;
+            top: 120px;
+            left: -50px;
+            opacity: 0.7;
+            animation: driftSlow 22s ease-in-out infinite alternate-reverse;
+          }
+
+          @keyframes driftSlow {
+            0% { transform: translate3d(-25px, 0, 0); }
+            100% { transform: translate3d(35px, -8px, 0); }
+          }
+
+          /* Pioggia Animata */
+          .raindrop {
+            position: absolute;
+            top: -60px;
+            width: 2px;
+            height: 45px;
+            background: linear-gradient(to bottom, rgba(56, 189, 248, 0), rgba(125, 211, 252, 0.65));
+            transform: rotate(15deg);
+            animation: fall linear infinite;
+          }
+          @keyframes fall {
+            0% { transform: translate3d(40px, -60px, 0) rotate(15deg); opacity: 0; }
+            20% { opacity: 1; }
+            90% { opacity: 0.8; }
+            100% { transform: translate3d(-90px, 540px, 0) rotate(15deg); opacity: 0; }
+          }
+
+          /* Lampo Temporale */
+          .lightning-flash {
+            position: absolute;
+            inset: 0;
+            background: rgba(224, 242, 254, 0.25);
+            animation: flashAnim 7s infinite;
+            pointer-events: none;
+          }
+          @keyframes flashAnim {
+            0%, 92%, 96%, 100% { opacity: 0; }
+            93% { opacity: 0.6; }
+            95% { opacity: 0.2; }
+          }
+
+          /* Stelle Sereno Notte */
+          .star {
+            position: absolute;
+            background: #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ffffff;
+            animation: twinkle 3s infinite ease-in-out alternate;
+          }
+          @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 0.95; transform: scale(1.2); }
+          }
+
+          /* PROPOSTA 1: LAYOUT CANVAS */
+          .layout-p1 {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            padding: 28px 34px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
-            z-index: 2;
+            font-family: 'Outfit', sans-serif;
           }
-          .top-row {
+
+          /* Top bar */
+          .p1-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
-          .glass-pill {
+          .p1-date-pill {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.14);
@@ -96,45 +198,169 @@ views:
             color: #e2e8f0;
             text-transform: uppercase;
           }
-          .weather-badge {
-            background: rgba(15, 23, 42, 0.48);
+          .p1-weather-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.45);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 8px 18px;
             border-radius: 50px;
-            font-size: 17px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 18px;
             font-weight: 600;
             color: #f8fafc;
           }
-          .hero-clock {
+
+          /* Centro: Orologio Gigante */
+          .p1-center-clock {
             text-align: center;
+            margin: -10px 0;
+            position: relative;
+          }
+          .p1-time {
             font-size: 168px;
             font-weight: 800;
             line-height: 0.9;
             letter-spacing: -6px;
             color: #ffffff;
             text-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
-            margin: -6px 0;
+            display: inline-flex;
+            align-items: baseline;
           }
-          .bottom-dock {
-            height: 104px;
+          .p1-colon {
+            color: #38bdf8;
+            margin: 0 4px;
+            animation: softBlink 2s infinite ease-in-out;
+          }
+          .p1-minutes {
+            background: linear-gradient(180deg, #ffffff 20%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.6));
+          }
+
+          @keyframes softBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+
+          /* Basso: Dock Satinata */
+          .p1-bottom-dock {
+            height: 108px;
             background: rgba(15, 23, 42, 0.62);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 30px;
-            padding: 10px 14px 10px 26px;
-            box-sizing: border-box;
+            padding: 12px 14px 12px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
           }
+
+          .p1-temp-group {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+          }
+          .p1-temp-main {
+            display: flex;
+            align-items: baseline;
+          }
+          .p1-temp-val {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -2px;
+            background: linear-gradient(90deg, #ffffff, #fed7aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+          .p1-temp-unit {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fb923c;
+            margin-left: 2px;
+          }
+          .p1-temp-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-left: 2px solid rgba(255, 255, 255, 0.12);
+            padding-left: 18px;
+          }
+          .p1-temp-label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+          }
+          .p1-minmax {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            gap: 12px;
+          }
+
+          /* Bottone Sveglia Interattivo */
+          .alarm-pill-btn {
+            height: 82px;
+            min-width: 265px;
+            border-radius: 22px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+          }
+          .alarm-pill-btn.off {
+            background: rgba(30, 41, 59, 0.85);
+            box-shadow: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+          }
+          .alarm-text-col {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+          }
+          .alarm-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            opacity: 0.9;
+            color: #ffffff;
+          }
+          .alarm-time-val {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.1;
+            color: #ffffff;
+          }
+          .alarm-status-dot {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+          }
+
         custom_fields:
           horizon_view: |
             [[[
               const now = new Date();
               const giorni = ['DOMENICA','LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO'];
-              const mesi = ['GEN','FEB','MAR','APR','MAG','GIU','LUG','AGO','SET','OTT','NOV','DIC'];
+              const mesi = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
               const dateStr = `${giorni[now.getDay()]} ${now.getDate()} ${mesi[now.getMonth()]}`;
               
               const hh = String(now.getHours()).padStart(2, '0');
@@ -146,9 +372,16 @@ views:
               const tMax = minMaxAttrs.temp_max ?? '--';
 
               const wState = entity.state;
+              const windSpeed = entity.attributes.wind_speed ? ` • Vento ${entity.attributes.wind_speed} km/h` : '';
+              
+              const isSunny = wState === 'sunny' || wState === 'partlycloudy';
+              const isRainy = wState === 'rainy' || wState === 'pouring';
+              const isStorm = wState === 'lightning' || wState === 'lightning-rainy';
+              const isNight = wState === 'clear-night';
+
               const mapMeteo = {
                 'sunny': ['Soleggiato', '☀️'],
-                'clear-night': ['Sereno', '🌙'],
+                'clear-night': ['Cielo Sereno', '🌙'],
                 'partlycloudy': ['Poco Nuvoloso', '⛅'],
                 'cloudy': ['Nuvoloso', '☁️'],
                 'rainy': ['Pioggia', '🌧️'],
@@ -161,41 +394,77 @@ views:
               const alarmRaw = states['input_datetime.sveglia_comodino_orario']?.state || '07:30:00';
               const alarmTime = alarmRaw.substring(0, 5);
 
+              let rainHtml = '';
+              if (isRainy || isStorm) {
+                for (let i = 0; i < 20; i++) {
+                  const left = Math.floor(Math.random() * 105);
+                  const dur = (0.6 + Math.random() * 0.4).toFixed(2);
+                  const del = (Math.random() * 1.5).toFixed(2);
+                  rainHtml += `<div class="raindrop" style="left:${left}%; animation-duration:${dur}s; animation-delay:${del}s;"></div>`;
+                }
+              }
+
+              let starsHtml = '';
+              if (isNight) {
+                for (let i = 0; i < 24; i++) {
+                  const left = Math.floor(Math.random() * 100);
+                  const top = Math.floor(Math.random() * 65);
+                  const size = (2 + Math.random() * 2).toFixed(1);
+                  const del = (Math.random() * 3).toFixed(1);
+                  starsHtml += `<div class="star" style="width:${size}px; height:${size}px; left:${left}%; top:${top}%; animation-delay:${del}s;"></div>`;
+                }
+              }
+
               return `
-                <div class="horizon-stage">
-                  <div class="top-row">
-                    <div class="glass-pill">📅 ${dateStr}</div>
-                    <div class="weather-badge">${icon} ${desc}</div>
+                <div class="weather-stage">
+                  ${isSunny ? '<div class="sun-orb"></div>' : ''}
+                  ${isStorm ? '<div class="lightning-flash"></div>' : ''}
+                  ${starsHtml}
+                  <svg class="cloud-layer cloud-1" viewBox="0 0 200 100">
+                    <path d="M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z" />
+                  </svg>
+                  <svg class="cloud-layer cloud-2" viewBox="0 0 200 100">
+                    <path d="M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z" />
+                  </svg>
+                  ${rainHtml}
+                </div>
+
+                <div class="layout-p1">
+                  <div class="p1-top">
+                    <div class="p1-date-pill">📅 ${dateStr}</div>
+                    <div class="p1-weather-badge">
+                      <span>${icon}</span>
+                      <span>${desc}${windSpeed}</span>
+                    </div>
                   </div>
 
-                  <div class="hero-clock">
-                    <span>${hh}</span><span style="color:#38bdf8; animation:softBlink 2s infinite;">:</span><span style="background:linear-gradient(180deg,#ffffff 20%,#93c5fd 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${mm}</span>
+                  <div class="p1-center-clock">
+                    <div class="p1-time">
+                      <span>${hh}</span><span class="p1-colon">:</span><span class="p1-minutes">${mm}</span>
+                    </div>
                   </div>
 
-                  <div class="bottom-dock">
-                    <div style="display:flex; align-items:center; gap:20px;">
-                      <div style="display:flex; align-items:baseline;">
-                        <span style="font-size:62px; font-weight:800; line-height:1; letter-spacing:-2px; background:linear-gradient(90deg,#ffffff,#fed7aa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${isNaN(temp) ? '--' : temp}</span>
-                        <span style="font-size:26px; font-weight:700; color:#fb923c; margin-left:2px;">°C</span>
+                  <div class="p1-bottom-dock">
+                    <div class="p1-temp-group">
+                      <div class="p1-temp-main">
+                        <span class="p1-temp-val">${isNaN(temp) ? '--' : temp}</span>
+                        <span class="p1-temp-unit">°C</span>
                       </div>
-                      <div style="display:flex; flex-direction:column; gap:2px; border-left:2px solid rgba(255,255,255,0.12); padding-left:16px;">
-                        <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#94a3b8;">Temp. Esterna</span>
-                        <div style="font-size:16px; font-weight:700;">
+                      <div class="p1-temp-meta">
+                        <span class="p1-temp-label">🌡️ Temp. Esterna</span>
+                        <div class="p1-minmax">
                           <span style="color:#38bdf8;">↓ ${tMin}°</span>
-                          <span style="color:#64748b; margin:0 6px;">|</span>
                           <span style="color:#fb923c;">↑ ${tMax}°</span>
                         </div>
                       </div>
                     </div>
 
-                    <div style="height:78px; min-width:250px; border-radius:20px; padding:0 22px; display:flex; align-items:center; justify-content:space-between; background:${alarmOn ? 'linear-gradient(135deg, #f59e0b, #ea580c)' : 'rgba(30, 41, 59, 0.85)'}; border:1px solid ${alarmOn ? 'rgba(254, 215, 170, 0.4)' : 'rgba(255,255,255,0.08)'}; box-shadow:${alarmOn ? '0 6px 20px rgba(245, 158, 11, 0.35)' : 'none'}; color:#ffffff;">
-                      <div style="display:flex; flex-direction:column; text-align:left;">
-                        <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; opacity:0.9;">${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA SPENTA'}</span>
-                        <span style="font-size:30px; font-weight:800; line-height:1.1;">${alarmTime}</span>
+                    <div class="alarm-pill-btn ${alarmOn ? '' : 'off'}">
+                      <div class="alarm-text-col">
+                        <span class="alarm-title">${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA SPENTA'}</span>
+                        <span class="alarm-time-val">${alarmTime}</span>
                       </div>
-                      <div style="width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:18px;">
-                        ${alarmOn ? '🔔' : '🔕'}
-                      </div>
+                      <div class="alarm-status-dot">${alarmOn ? '🔔' : '🔕'}</div>
                     </div>
                   </div>
                 </div>
