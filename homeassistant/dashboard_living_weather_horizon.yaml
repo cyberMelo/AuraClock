@@ -1,6 +1,6 @@
 # ==============================================================================
 # Dashboard Lovelace: Living Weather Horizon (800x480) per Aura Clock
-# Basato su Proposta 1 (Full Canvas Living Horizon)
+# Basato su Proposta 1 (Full Canvas Living Horizon) + Proposta A (Aura Dual Stepper)
 # Richiede componenti HACS: custom:button-card, custom:layout-card, kiosk-mode
 # ==============================================================================
 
@@ -472,85 +472,306 @@ views:
             ]]]
 
   # =========================================================================
-  # VISTA 1: SELETTORE ORARIO SVEGLIA A TUTTO SCHERMO (800x480)
+  # VISTA 1: PROPOSTA A - "AURA DUAL-COLUMN STEPPER" (800x480)
   # =========================================================================
   - title: Imposta Orario Sveglia
     path: "orario"
     type: custom:grid-layout
     layout:
-      grid-template-columns: 1fr 1.3fr 1fr
-      grid-template-rows: 1fr 1fr 110px
-      grid-gap: 16px
-      padding: 20px
+      grid-template-columns: 168px 36px 168px 290px
+      grid-template-rows: 44px 52px 124px 52px 76px
+      grid-gap: 12px
+      padding: 20px 28px
       height: 480px
       width: 800px
-      background: "#07090e"
+      overflow: hidden
+      background: radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, rgba(15, 23, 42, 0.8) 50%, #05070e 100%)
     cards:
+      # ---------------------------------------------------------------------
+      # RIGA 1: Header (Titolo + Annulla)
+      # ---------------------------------------------------------------------
       - type: custom:button-card
-        name: "+1 ORA"
-        view_layout: { grid-column: "1 / 2", grid-row: "1 / 2" }
-        tap_action:
-          action: call-service
-          service: script.sveglia_comodino_cambia_ora
-          service_data: { minuti_delta: 60 }
+        name: "⏰ REGOLA ORARIO SVEGLIA"
+        view_layout: { grid-column: "1 / 4", grid-row: "1 / 2" }
         styles:
-          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#38bdf8", font-size: 28px, font-weight: 800]
+          card:
+            - background: "rgba(255, 255, 255, 0.08)"
+            - backdrop-filter: "blur(12px)"
+            - border: "1px solid rgba(255, 255, 255, 0.14)"
+            - border-radius: "50px"
+            - height: "100%"
+            - font-size: "14px"
+            - font-weight: "800"
+            - letter-spacing: "1.5px"
+            - color: "#fed7aa"
+            - justify-self: "start"
+            - padding: "0 20px"
 
       - type: custom:button-card
-        name: "-1 ORA"
-        view_layout: { grid-column: "1 / 2", grid-row: "2 / 3" }
-        tap_action:
-          action: call-service
-          service: script.sveglia_comodino_cambia_ora
-          service_data: { minuti_delta: -60 }
-        styles:
-          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#38bdf8", font-size: 28px, font-weight: 800]
-
-      - type: custom:button-card
-        entity: input_datetime.sveglia_comodino_orario
-        view_layout: { grid-column: "2 / 3", grid-row: "1 / 3" }
-        show_icon: false
-        show_name: false
-        styles:
-          card: [height: 100%, border-radius: 26px, background: "#0f172a", border: "2px solid #f59e0b"]
-        custom_fields:
-          time_val: |
-            [[[
-              const t = (entity.state || '07:30:00').substring(0, 5);
-              return `<div style="font-size:78px; font-weight:800; color:#ffffff;">${t}</div>`;
-            ]]]
-
-      - type: custom:button-card
-        name: "+5 MIN"
-        view_layout: { grid-column: "3 / 4", grid-row: "1 / 2" }
-        tap_action:
-          action: call-service
-          service: script.sveglia_comodino_cambia_ora
-          service_data: { minuti_delta: 5 }
-        styles:
-          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#fb923c", font-size: 28px, font-weight: 800]
-
-      - type: custom:button-card
-        name: "-5 MIN"
-        view_layout: { grid-column: "3 / 4", grid-row: "2 / 3" }
-        tap_action:
-          action: call-service
-          service: script.sveglia_comodino_cambia_ora
-          service_data: { minuti_delta: -5 }
-        styles:
-          card: [height: 100%, border-radius: 22px, background: "#1e293b", color: "#fb923c", font-size: 28px, font-weight: 800]
-
-      - type: custom:button-card
-        name: "✓ CONFERMA ORARIO"
-        view_layout: { grid-column: "1 / 4", grid-row: "3 / 4" }
+        name: "✕ ANNULLA"
+        view_layout: { grid-column: "4 / 5", grid-row: "1 / 2" }
         tap_action:
           action: navigate
           navigation_path: "/lovelace-comodino/0"
         styles:
           card:
-            - height: 100%
-            - border-radius: 22px
-            - background: linear-gradient(135deg, #10b981, #059669)
+            - background: "rgba(239, 68, 68, 0.15)"
+            - border: "1px solid rgba(239, 68, 68, 0.35)"
+            - border-radius: "50px"
+            - height: "100%"
+            - font-size: "13px"
+            - font-weight: "700"
+            - color: "#fca5a5"
+            - justify-self: "end"
+            - padding: "0 20px"
+
+      # ---------------------------------------------------------------------
+      # COLONNA 1: Regolazione ORE (Ciano #38bdf8)
+      # ---------------------------------------------------------------------
+      - type: custom:button-card
+        name: "▲ +1 ORA"
+        view_layout: { grid-column: "1 / 2", grid-row: "2 / 3" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: 60 }
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "18px"
+            - background: "rgba(30, 41, 59, 0.85)"
+            - backdrop-filter: "blur(14px)"
+            - border: "1px solid rgba(56, 189, 248, 0.35)"
+            - color: "#38bdf8"
+            - font-size: "18px"
+            - font-weight: "800"
+            - box-shadow: "0 6px 18px rgba(0,0,0,0.4)"
+
+      - type: custom:button-card
+        entity: input_datetime.sveglia_comodino_orario
+        view_layout: { grid-column: "1 / 2", grid-row: "3 / 4" }
+        show_icon: false
+        show_name: false
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "24px"
+            - background: "rgba(15, 23, 42, 0.75)"
+            - backdrop-filter: "blur(20px)"
+            - border: "1.5px solid rgba(56, 189, 248, 0.4)"
+            - box-shadow: "0 10px 30px rgba(56, 189, 248, 0.15)"
+        custom_fields:
+          val: |
+            [[[
+              const hh = (entity.state || '07:30:00').substring(0, 2);
+              return `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <span style="font-size:78px; font-weight:900; line-height:0.95; letter-spacing:-2px; color:#ffffff;">${hh}</span>
+                  <span style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#94a3b8; margin-top:2px;">ORE</span>
+                </div>
+              `;
+            ]]]
+
+      - type: custom:button-card
+        name: "▼ -1 ORA"
+        view_layout: { grid-column: "1 / 2", grid-row: "4 / 5" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: -60 }
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "18px"
+            - background: "rgba(30, 41, 59, 0.85)"
+            - backdrop-filter: "blur(14px)"
+            - border: "1px solid rgba(56, 189, 248, 0.35)"
+            - color: "#38bdf8"
+            - font-size: "18px"
+            - font-weight: "800"
+            - box-shadow: "0 6px 18px rgba(0,0,0,0.4)"
+
+      # ---------------------------------------------------------------------
+      # COLONNA 2: Due Punti Divisori (Ambra #f59e0b)
+      # ---------------------------------------------------------------------
+      - type: custom:button-card
+        name: ":"
+        view_layout: { grid-column: "2 / 3", grid-row: "3 / 4" }
+        styles:
+          card:
+            - height: "100%"
+            - background: "transparent"
+            - border: "none"
+            - color: "#f59e0b"
+            - font-size: "68px"
+            - font-weight: "900"
+            - box-shadow: "none"
+
+      # ---------------------------------------------------------------------
+      # COLONNA 3: Regolazione MINUTI (Arancio #fb923c)
+      # ---------------------------------------------------------------------
+      - type: custom:button-card
+        name: "▲ +5 MIN"
+        view_layout: { grid-column: "3 / 4", grid-row: "2 / 3" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: 5 }
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "18px"
+            - background: "rgba(30, 41, 59, 0.85)"
+            - backdrop-filter: "blur(14px)"
+            - border: "1px solid rgba(251, 146, 60, 0.35)"
+            - color: "#fb923c"
+            - font-size: "18px"
+            - font-weight: "800"
+            - box-shadow: "0 6px 18px rgba(0,0,0,0.4)"
+
+      - type: custom:button-card
+        entity: input_datetime.sveglia_comodino_orario
+        view_layout: { grid-column: "3 / 4", grid-row: "3 / 4" }
+        show_icon: false
+        show_name: false
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "24px"
+            - background: "rgba(15, 23, 42, 0.75)"
+            - backdrop-filter: "blur(20px)"
+            - border: "1.5px solid rgba(245, 158, 11, 0.45)"
+            - box-shadow: "0 10px 30px rgba(245, 158, 11, 0.18)"
+        custom_fields:
+          val: |
+            [[[
+              const mm = (entity.state || '07:30:00').substring(3, 5);
+              return `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                  <span style="font-size:78px; font-weight:900; line-height:0.95; letter-spacing:-2px; color:#ffffff;">${mm}</span>
+                  <span style="font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#94a3b8; margin-top:2px;">MINUTI</span>
+                </div>
+              `;
+            ]]]
+
+      - type: custom:button-card
+        name: "▼ -5 MIN"
+        view_layout: { grid-column: "3 / 4", grid-row: "4 / 5" }
+        tap_action:
+          action: call-service
+          service: script.sveglia_comodino_cambia_ora
+          service_data: { minuti_delta: -5 }
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "18px"
+            - background: "rgba(30, 41, 59, 0.85)"
+            - backdrop-filter: "blur(14px)"
+            - border: "1px solid rgba(251, 146, 60, 0.35)"
+            - color: "#fb923c"
+            - font-size: "18px"
+            - font-weight: "800"
+            - box-shadow: "0 6px 18px rgba(0,0,0,0.4)"
+
+      # ---------------------------------------------------------------------
+      # COLONNA 4: Info Alba Artificiale & Preset Veloci
+      # ---------------------------------------------------------------------
+      - type: custom:button-card
+        entity: input_datetime.sveglia_comodino_orario
+        view_layout: { grid-column: "4 / 5", grid-row: "2 / 4" }
+        show_icon: false
+        show_name: false
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "22px"
+            - background: "rgba(245, 158, 11, 0.12)"
+            - border: "1px solid rgba(254, 215, 170, 0.25)"
+            - padding: "16px"
+        custom_fields:
+          sunrise: |
+            [[[
+              const t = (entity.state || '07:30:00').substring(0, 5);
+              let [h, m] = t.split(':').map(Number);
+              m -= 10;
+              if (m < 0) { m += 60; h = (h - 1 + 24) % 24; }
+              const sStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+              return `
+                <div style="display:flex; flex-direction:column; justify-content:center; height:100%; text-align:left;">
+                  <span style="font-size:13px; font-weight:800; color:#fed7aa; letter-spacing:0.8px; text-transform:uppercase;">✨ Alba Artificiale</span>
+                  <span style="font-size:22px; font-weight:900; color:#fde047; margin:4px 0;">Dalle ${sStr}</span>
+                  <span style="font-size:11px; font-weight:600; color:#fef08a; opacity:0.85; line-height:1.3;">10 minuti di pre-accensione calda progressiva prima del suono</span>
+                </div>
+              `;
+            ]]]
+
+      # Preset Veloci (Row 4)
+      - type: custom:button-card
+        view_layout: { grid-column: "4 / 5", grid-row: "4 / 5" }
+        show_icon: false
+        show_name: false
+        styles:
+          card:
+            - height: "100%"
+            - background: "transparent"
+            - border: "none"
+            - padding: 0
+            - box-shadow: "none"
+        custom_fields:
+          chips: |
+            [[[
+              return `
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; height:100%;">
+                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'06:45:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:14px; font-size:13px; font-weight:800; cursor:pointer;">06:45</button>
+                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'07:00:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:14px; font-size:13px; font-weight:800; cursor:pointer;">07:00</button>
+                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'07:30:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:14px; font-size:13px; font-weight:800; cursor:pointer;">07:30</button>
+                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'08:00:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:14px; font-size:13px; font-weight:800; cursor:pointer;">08:00</button>
+                </div>
+              `;
+            ]]]
+
+      # ---------------------------------------------------------------------
+      # RIGA 5: Dock Inferiore (Riepilogo + Conferma Verde Smeraldo)
+      # ---------------------------------------------------------------------
+      - type: custom:button-card
+        entity: input_datetime.sveglia_comodino_orario
+        view_layout: { grid-column: "1 / 3", grid-row: "5 / 6" }
+        show_icon: false
+        show_name: false
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "22px"
+            - background: "rgba(15, 23, 42, 0.65)"
+            - backdrop-filter: "blur(20px)"
+            - border: "1px solid rgba(255, 255, 255, 0.14)"
+            - padding: "0 20px"
+        custom_fields:
+          summary: |
+            [[[
+              const t = (entity.state || '07:30:00').substring(0, 5);
+              return `
+                <div style="display:flex; flex-direction:column; justify-content:center; height:100%; text-align:left;">
+                  <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#94a3b8;">Nuovo Orario</span>
+                  <span style="font-size:26px; font-weight:900; color:#ffffff; line-height:1.1;">${t}</span>
+                </div>
+              `;
+            ]]]
+
+      - type: custom:button-card
+        name: "✓ CONFERMA E SALVA"
+        view_layout: { grid-column: "3 / 5", grid-row: "5 / 6" }
+        tap_action:
+          action: navigate
+          navigation_path: "/lovelace-comodino/0"
+        styles:
+          card:
+            - height: "100%"
+            - border-radius: "22px"
+            - background: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+            - border: "1px solid rgba(167, 243, 208, 0.4)"
+            - box-shadow: "0 8px 25px rgba(16, 185, 129, 0.35)"
             - color: "#ffffff"
-            - font-size: 26px
-            - font-weight: 800
+            - font-size: "20px"
+            - font-weight: "900"
+            - letter-spacing: "0.5px"
