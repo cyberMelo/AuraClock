@@ -73,6 +73,31 @@ class AppConfig(context: Context) {
         get() = prefs.getLong(KEY_CACHED_NEXT_ALARM_TS, 0L)
         set(value) = prefs.edit().putLong(KEY_CACHED_NEXT_ALARM_TS, value).apply()
 
+    // Cache stati Home Assistant
+    var extTemp: String
+        get() = prefs.getString(KEY_CACHE_EXT_TEMP, "--") ?: "--"
+        set(value) = prefs.edit().putString(KEY_CACHE_EXT_TEMP, value).apply()
+
+    var alarmEnabled: Boolean
+        get() = prefs.getBoolean(KEY_CACHE_ALARM_ENABLED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CACHE_ALARM_ENABLED, value).apply()
+
+    var alarmTime: String
+        get() = prefs.getString(KEY_CACHE_ALARM_TIME, "07:30:00") ?: "07:30:00"
+        set(value) = prefs.edit().putString(KEY_CACHE_ALARM_TIME, value).apply()
+
+    var weatherState: String
+        get() = prefs.getString(KEY_CACHE_WEATHER_STATE, "sunny") ?: "sunny"
+        set(value) = prefs.edit().putString(KEY_CACHE_WEATHER_STATE, value).apply()
+
+    var isBedsideLightOn: Boolean
+        get() = prefs.getBoolean(KEY_CACHE_BEDSIDE_LIGHT_ON, false)
+        set(value) = prefs.edit().putBoolean(KEY_CACHE_BEDSIDE_LIGHT_ON, value).apply()
+
+    var lastSyncTimestamp: Long
+        get() = prefs.getLong(KEY_CACHE_LAST_SYNC_TS, 0L)
+        set(value) = prefs.edit().putLong(KEY_CACHE_LAST_SYNC_TS, value).apply()
+
     fun isConfigured(): Boolean = haAccessToken.isNotBlank() && haBaseUrl.isNotBlank()
 
     fun getAllAsMap(): Map<String, Any> {
@@ -114,6 +139,12 @@ class AppConfig(context: Context) {
         const val KEY_ALARM_MAX_VOLUME_PCT = "alarm_max_volume_pct"
         const val KEY_SUNRISE_DURATION_MIN = "sunrise_duration_min"
         const val KEY_CACHED_NEXT_ALARM_TS = "cached_next_alarm_ts"
+        const val KEY_CACHE_EXT_TEMP = "cache_ext_temp"
+        const val KEY_CACHE_ALARM_ENABLED = "cache_alarm_enabled"
+        const val KEY_CACHE_ALARM_TIME = "cache_alarm_time"
+        const val KEY_CACHE_WEATHER_STATE = "cache_weather_state"
+        const val KEY_CACHE_BEDSIDE_LIGHT_ON = "cache_bedside_light_on"
+        const val KEY_CACHE_LAST_SYNC_TS = "cache_last_sync_ts"
 
         const val DEFAULT_HA_BASE_URL = "http://192.168.1.100:8123"
         const val DEFAULT_HA_DASHBOARD_PATH = "/lovelace-comodino/0?kiosk"

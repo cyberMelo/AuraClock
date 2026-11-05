@@ -15,15 +15,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class HaWebSocketClient(
     private val appConfig: AppConfig,
-    private val stateCache: HaStateCache,
-    private val listener: HaEventListener
+    var onConnectionStatus: ((String) -> Unit)? = null,
+    var onAlarmState: ((Boolean, String) -> Unit)? = null,
+    var onExternalTemp: ((String) -> Unit)? = null,
+    var onHaConnected: (() -> Unit)? = null
 ) {
-
-    interface HaEventListener {
-        fun onConnectionStatusChanged(status: String)
-        fun onAlarmStateChanged(enabled: Boolean, timeStr: String)
-        fun onExternalTempChanged(tempStr: String)
-    }
 
     private val okHttpClient = OkHttpClient.Builder()
         .pingInterval(30, TimeUnit.SECONDS)
@@ -46,7 +42,7 @@ class HaWebSocketClient(
         val baseUrl = appConfig.haBaseUrl
 
         if (token.isBlank() || baseUrl.isBlank()) {
-            listener.onConnectionStatusChanged("Configurazione mancante")
+            onConnectionStatus?.invoke("Configurazione mancante")
             return
         }
 
@@ -54,7 +50,7 @@ class HaWebSocketClient(
             .replace("https://", "wss://")
             .replace("http://", "ws://") + "/api/websocket"
 
-        listener.onConnectionStatusChanged("Connessione in corso...")
+        onConnectionStatus?.invoke("Connessione in corso...")
         Log.i(TAG, "Connessione WS verso: $wsUrl")
 
         val request = Request.Builder().url(wsUrl).build()
@@ -73,14 +69,14 @@ class HaWebSocketClient(
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 isConnected = false
-                listener.onConnectionStatusChanged("Disconnesso")
+                handler.post { onConnectionStatus?.invoke("Disconnesso") }
                 scheduleReconnect()
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.e(TAG, "Errore socket: ${t.message}")
                 isConnected = false
-                listener.onConnectionStatusChanged("Errore di rete")
+                handler.post { onConnectionStatus?.invoke("Errore di rete") }
                 scheduleReconnect()
             }
         })
@@ -105,7 +101,6 @@ class HaWebSocketClient(
 
             when (type) {
                 "auth_required" -> {
-                    // Invia token
                     val authMsg = JSONObject().apply {
                         put("type", "auth")
                         put("access_token", appConfig.haAccessToken)
@@ -117,7 +112,10 @@ class HaWebSocketClient(
                     Log.i(TAG, "Autenticazione HA riuscita!")
                     isConnected = true
                     reconnectAttempt = 0
-                    handler.post { listener.onConnectionStatusChanged("Connesso") }
+                    handler.post {
+                        onConnectionStatus?.invoke("Connesso")
+                        onHaConnected?.invoke()
+                    }
 
                     // 1. Fetch iniziale degli stati
                     val getStates = JSONObject().apply {
@@ -140,7 +138,7 @@ class HaWebSocketClient(
                 "auth_invalid" -> {
                     Log.e(TAG, "Autenticazione HA fallita! Verificare il token.")
                     isConnected = false
-                    handler.post { listener.onConnectionStatusChanged("Token non valido") }
+                    handler.post { onConnectionStatus?.invoke("Token non valido") }
                 }
 
                 "result" -> {
@@ -162,9 +160,7 @@ class HaWebSocketClient(
                     }
                 }
 
-                "pong" -> {
-                    // Risposta ping ricevuta
-                }
+                "pong" -> {}
             }
         } catch (e: Exception) {
             Log.e(TAG, "Errore parsing messaggio WS: ${e.message}")
@@ -190,28 +186,28 @@ class HaWebSocketClient(
                 } catch (e: Exception) {
                     "$state°C"
                 }
-                stateCache.extTemp = formattedTemp
-                stateCache.lastSyncTimestamp = System.currentTimeMillis()
-                handler.post { listener.onExternalTempChanged(formattedTemp) }
+                appConfig.extTemp = formattedTemp
+                appConfig.lastSyncTimestamp = System.currentTimeMillis()
+                handler.post { onExternalTemp?.invoke(formattedTemp) }
             }
 
             appConfig.entityAlarmEnabled -> {
                 val isEnabled = state.equals("on", ignoreCase = true)
-                stateCache.alarmEnabled = isEnabled
-                handler.post { listener.onAlarmStateChanged(isEnabled, stateCache.alarmTime) }
+                appConfig.alarmEnabled = isEnabled
+                handler.post { onAlarmState?.invoke(isEnabled, appConfig.alarmTime) }
             }
 
             appConfig.entityAlarmTime -> {
-                stateCache.alarmTime = state
-                handler.post { listener.onAlarmStateChanged(stateCache.alarmEnabled, state) }
+                appConfig.alarmTime = state
+                handler.post { onAlarmState?.invoke(appConfig.alarmEnabled, state) }
             }
 
             appConfig.entityWeather -> {
-                stateCache.weatherState = state
+                appConfig.weatherState = state
             }
 
             appConfig.entityBedsideLight -> {
-                stateCache.isBedsideLightOn = state.equals("on", ignoreCase = true)
+                appConfig.isBedsideLightOn = state.equals("on", ignoreCase = true)
             }
         }
     }

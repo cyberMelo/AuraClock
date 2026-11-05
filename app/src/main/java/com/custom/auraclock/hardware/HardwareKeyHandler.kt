@@ -2,15 +2,13 @@ package com.custom.auraclock.hardware
 
 import android.view.KeyEvent
 
-class HardwareKeyHandler(private val actionListener: ActionListener) {
-
-    interface ActionListener {
-        fun onSnoozeTriggered()
-        fun onStopAlarmTriggered()
-        fun onPeekTriggered()
-        fun onAdjustBrightness(delta: Float)
-        fun onToggleBedsideLight()
-    }
+class HardwareKeyHandler(
+    var onSnooze: (() -> Unit)? = null,
+    var onStopAlarm: (() -> Unit)? = null,
+    var onPeek: (() -> Unit)? = null,
+    var onAdjustBrightness: ((Float) -> Unit)? = null,
+    var onToggleBedsideLight: (() -> Unit)? = null
+) {
 
     enum class UIContext {
         ALARM_RINGING,
@@ -19,7 +17,6 @@ class HardwareKeyHandler(private val actionListener: ActionListener) {
     }
 
     fun handleKeyEvent(event: KeyEvent, currentContext: UIContext): Boolean {
-        // Intercetta solo alla pressione iniziale (ACTION_DOWN)
         if (event.action != KeyEvent.ACTION_DOWN) {
             return isRecognizedKey(event.keyCode)
         }
@@ -30,13 +27,13 @@ class HardwareKeyHandler(private val actionListener: ActionListener) {
             UIContext.ALARM_RINGING -> {
                 when (keyCode) {
                     KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        actionListener.onSnoozeTriggered()
+                        onSnooze?.invoke()
                         return true
                     }
                     KeyEvent.KEYCODE_MUTE,
                     KeyEvent.KEYCODE_VOLUME_MUTE,
                     91, 131, 164 -> {
-                        actionListener.onStopAlarmTriggered()
+                        onStopAlarm?.invoke()
                         return true
                     }
                 }
@@ -45,13 +42,13 @@ class HardwareKeyHandler(private val actionListener: ActionListener) {
             UIContext.NIGHT_ACTIVE -> {
                 when (keyCode) {
                     KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        actionListener.onPeekTriggered()
+                        onPeek?.invoke()
                         return true
                     }
                     KeyEvent.KEYCODE_MUTE,
                     KeyEvent.KEYCODE_VOLUME_MUTE,
                     91, 131, 164 -> {
-                        actionListener.onToggleBedsideLight()
+                        onToggleBedsideLight?.invoke()
                         return true
                     }
                 }
@@ -60,17 +57,17 @@ class HardwareKeyHandler(private val actionListener: ActionListener) {
             UIContext.DAY_OR_PEEK -> {
                 when (keyCode) {
                     KeyEvent.KEYCODE_VOLUME_UP -> {
-                        actionListener.onAdjustBrightness(+0.15f)
+                        onAdjustBrightness?.invoke(+0.15f)
                         return true
                     }
                     KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        actionListener.onAdjustBrightness(-0.15f)
+                        onAdjustBrightness?.invoke(-0.15f)
                         return true
                     }
                     KeyEvent.KEYCODE_MUTE,
                     KeyEvent.KEYCODE_VOLUME_MUTE,
                     91, 131, 164 -> {
-                        actionListener.onToggleBedsideLight()
+                        onToggleBedsideLight?.invoke()
                         return true
                     }
                 }

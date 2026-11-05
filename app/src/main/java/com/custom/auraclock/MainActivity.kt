@@ -25,7 +25,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.custom.auraclock.alarm.ReliableAlarmManager
 import com.custom.auraclock.config.AppConfig
 import com.custom.auraclock.databinding.ActivityMainBinding
 import com.custom.auraclock.hardware.HardwareKeyHandler
@@ -36,15 +35,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListener, HardwareKeyHandler.ActionListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var appConfig: AppConfig
@@ -57,7 +52,6 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
 
     private val handler = Handler(Looper.getMainLooper())
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
-    private var healthCheckJob: Job? = null
 
     // Gesto segreto: 5 tap in 2.5 secondi
     private var secretTapCount = 0
@@ -69,7 +63,6 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
     private var isPeekActive = false
     private var isSettingsOpen = false
     private var isHaReachable = true
-    private var tokenInjected = false
 
     // Anti-burn-in Pixel Shift
     private var pixelShiftIndex = 0
@@ -103,8 +96,21 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
 
         setImmersiveStickyMode()
 
-        hardwareKeyHandler = HardwareKeyHandler(this)
-        lightSensorController = LightSensorController(this, appConfig, this)
+        hardwareKeyHandler = HardwareKeyHandler(
+            onSnooze = { onSnoozeTriggered() },
+            onStopAlarm = { onStopAlarmTriggered() },
+            onPeek = { onPeekTriggered() },
+            onAdjustBrightness = { delta -> onAdjustBrightness(delta) },
+            onToggleBedsideLight = { onToggleBedsideLight() }
+        )
+
+        lightSensorController = LightSensorController(
+            context = this,
+            appConfig = appConfig,
+            onModeChanged = { mode -> onModeChanged(mode) },
+            onBrightnessChanged = { b -> onScreenBrightnessChanged(b) },
+            onLuxUpdated = { lux -> onLuxUpdated(lux) }
+        )
 
         setupSecretTapTarget()
         setupSettingsOverlay()
@@ -112,7 +118,6 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         setupWebView()
         startPixelShiftLoop()
 
-        // Avvia e collega il Service in Foreground
         val serviceIntent = Intent(this, AuraClockCoreService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
@@ -123,7 +128,6 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
 
         handleIntent(intent)
 
-        // Se primo avvio senza token, apri subito il Layer 4
         if (!appConfig.isConfigured()) {
             openSettingsOverlay()
         }
@@ -145,13 +149,11 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         super.onResume()
         setImmersiveStickyMode()
         lightSensorController.start()
-        startHaHealthCheckLoop()
     }
 
     override fun onPause() {
         super.onPause()
         lightSensorController.stop()
-        healthCheckJob?.cancel()
     }
 
     override fun onDestroy() {
@@ -213,11 +215,9 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
                 val dashboardPath = appConfig.haDashboardPath
 
                 if (token.isNotBlank() && url != null && url.startsWith(baseUrl)) {
-                    // Se siamo sulla root o pagina di login HA, inietta hassTokens in localStorage
                     if (!url.contains(dashboardPath)) {
                         injectHaTokens(webView, baseUrl, token, dashboardPath)
                     } else {
-                        // Pagina dashboard caricata correttamente
                         isHaReachable = true
                         binding.tvNightOfflineStatus.visibility = View.GONE
                         if (!isNightMode && !isAlarmRinging && !isSettingsOpen) {
@@ -291,51 +291,16 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
 
     private fun handleHaOffline() {
         isHaReachable = false
-        // Nascondi immediatamente la WebView per evitare errori nativi di Chromium
         binding.webViewLivingHorizon.visibility = View.INVISIBLE
         binding.layerNightOverlay.visibility = View.VISIBLE
         binding.tvNightOfflineStatus.visibility = View.VISIBLE
-    }
-
-    private fun startHaHealthCheckLoop() {
-        healthCheckJob?.cancel()
-        healthCheckJob = mainScope.launch {
-            val client = OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
-                .build()
-
-            while (isActive) {
-                delay(10000L) // Verifica ogni 10 secondi
-                val baseUrl = appConfig.haBaseUrl
-                if (baseUrl.isNotBlank() && !isHaReachable) {
-                    val reachable = withContext(Dispatchers.IO) {
-                        try {
-                            val request = Request.Builder()
-                                .url("$baseUrl/api/")
-                                .head()
-                                .build()
-                            client.newCall(request).execute().use { it.isSuccessful || it.code == 401 }
-                        } catch (e: Exception) {
-                            false
-                        }
-                    }
-
-                    if (reachable) {
-                        Log.i(TAG, "Home Assistant è tornato ONLINE! Ricarico la WebView...")
-                        isHaReachable = true
-                        loadHaDashboard()
-                    }
-                }
-            }
-        }
     }
 
     // =========================================================================
     // LAYER 2: Modalità Notte & Comfort Visivo Ambra
     // =========================================================================
 
-    override fun onModeChanged(newMode: LightSensorController.Mode) {
+    private fun onModeChanged(newMode: LightSensorController.Mode) {
         runOnUiThread {
             when (newMode) {
                 LightSensorController.Mode.NIGHT_MODE -> {
@@ -354,14 +319,12 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         if (isAlarmRinging || isSettingsOpen) return
 
         if (night) {
-            // Entrata in notte profonda: mostra layer 2 ambra
             binding.layerNightOverlay.alpha = 0f
             binding.layerNightOverlay.visibility = View.VISIBLE
             binding.layerNightOverlay.animate().alpha(1f).setDuration(500).start()
             binding.webViewLivingHorizon.visibility = View.INVISIBLE
-            setWindowBrightness(0.01f) // 1% minimo hardware
+            setWindowBrightness(0.01f)
         } else {
-            // Ritorno in giorno: dissolvenza layer 2 e ripristino dashboard
             binding.layerNightOverlay.animate().alpha(0f).setDuration(500).withEndAction {
                 binding.layerNightOverlay.visibility = View.GONE
                 removeWarmFilterFromWebView()
@@ -372,7 +335,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         }
     }
 
-    override fun onScreenBrightnessChanged(brightness: Float) {
+    private fun onScreenBrightnessChanged(brightness: Float) {
         runOnUiThread {
             if (!isNightMode && !isPeekActive) {
                 setWindowBrightness(brightness)
@@ -381,7 +344,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         }
     }
 
-    override fun onLuxUpdated(lux: Float) {
+    private fun onLuxUpdated(lux: Float) {
         coreService?.updateCurrentLux(lux)
     }
 
@@ -407,19 +370,14 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         isPeekActive = true
         Log.i(TAG, "Attivato Tap-to-Peek notturno a tonalità calda")
 
-        // 1. Applica filtro caldo anti-blu CSS alla WebView
         applyWarmFilterToWebView()
-
-        // 2. Alza dolcemente la luminosità a nightPeekBrightness (12%)
         setWindowBrightness(appConfig.nightPeekBrightness)
 
-        // 3. Mostra WebView e nascondi Layer 2
         binding.layerNightOverlay.visibility = View.GONE
         if (isHaReachable) {
             binding.webViewLivingHorizon.visibility = View.VISIBLE
         }
 
-        // 4. Timer di inattività
         handler.removeCallbacks(peekTimeoutRunnable)
         handler.postDelayed(peekTimeoutRunnable, appConfig.nightPeekDurationSec * 1000L)
     }
@@ -473,11 +431,9 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
                     val elapsed = System.currentTimeMillis() - startTime
                     val progress = (elapsed.toFloat() / totalDurationMs).coerceIn(0f, 1f)
 
-                    // Rampa luminosità display da 0.01f (1%) a 0.80f (80%)
                     val currentBrightness = 0.01f + progress * (0.80f - 0.01f)
                     setWindowBrightness(currentBrightness)
 
-                    // Sfumatura colore fondo Layer 2 da nero puro a oro/ambra caldo d'alba
                     val blendedColor = androidx.core.graphics.ColorUtils.blendARGB(
                         Color.BLACK,
                         Color.parseColor("#78350F"),
@@ -486,7 +442,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
                     binding.layerNightOverlay.setBackgroundColor(blendedColor)
 
                     if (progress >= 1f) break
-                    delay(3000L) // Aggiorna ogni 3 secondi per fluidità ottimale
+                    delay(3000L)
                 }
             }
         }
@@ -509,7 +465,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
                     binding.nightContentContainer.translationX = offset.first
                     binding.nightContentContainer.translationY = offset.second
                 }
-                handler.postDelayed(this, 5 * 60 * 1000L) // Ogni 5 minuti
+                handler.postDelayed(this, 5 * 60 * 1000L)
             }
         }, 5 * 60 * 1000L)
     }
@@ -536,7 +492,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             binding.tvAlarmRingingTime.text = sdf.format(Calendar.getInstance().time)
 
-            val extTemp = coreService?.stateCache?.extTemp ?: "--"
+            val extTemp = appConfig.extTemp
             binding.tvAlarmExtTemp.text = if (extTemp.contains("🌡️")) extTemp else "🌡️ $extTemp"
 
             binding.layerAlarmRinging.visibility = View.VISIBLE
@@ -545,67 +501,54 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         }
     }
 
-    override fun onSnoozeTriggered() {
+    private fun onSnoozeTriggered() {
         runOnUiThread {
             Log.i(TAG, "Azione SNOOZE sveglia")
             isAlarmRinging = false
             stopSunriseRamp()
             binding.layerAlarmRinging.visibility = View.GONE
 
-            // Ferma suoneria
             val stopIntent = Intent(this, AuraClockCoreService::class.java).apply {
                 action = AuraClockCoreService.ACTION_STOP_ALARM_AUDIO
             }
             startService(stopIntent)
 
-            // Schedula Snooze
             coreService?.alarmManager?.scheduleSnooze(appConfig.alarmSnoozeMinutes)
             updateAlarmBadge()
 
-            // Ripristina UI giorno o notte
-            if (isNightMode) {
-                applyNightModeUi(true)
-            } else {
-                applyNightModeUi(false)
-            }
+            applyNightModeUi(isNightMode)
             Toast.makeText(this, "Snooze attivato: +${appConfig.alarmSnoozeMinutes} min", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onStopAlarmTriggered() {
+    private fun onStopAlarmTriggered() {
         runOnUiThread {
             Log.i(TAG, "Azione STOP sveglia")
             isAlarmRinging = false
             stopSunriseRamp()
             binding.layerAlarmRinging.visibility = View.GONE
 
-            // Ferma suoneria
             val stopIntent = Intent(this, AuraClockCoreService::class.java).apply {
                 action = AuraClockCoreService.ACTION_STOP_ALARM_AUDIO
             }
             startService(stopIntent)
 
-            // Rischedula per domani e notifica Home Assistant
             coreService?.alarmManager?.syncAlarmFromHa(true, appConfig.entityAlarmTime)
             coreService?.wsClient?.notifyAlarmStopped()
             updateAlarmBadge()
 
-            if (isNightMode) {
-                applyNightModeUi(true)
-            } else {
-                applyNightModeUi(false)
-            }
+            applyNightModeUi(isNightMode)
             Toast.makeText(this, "Sveglia terminata", Toast.LENGTH_SHORT).show()
         }
     }
 
-    override fun onPeekTriggered() {
+    private fun onPeekTriggered() {
         runOnUiThread {
             activateTapToPeek()
         }
     }
 
-    override fun onAdjustBrightness(delta: Float) {
+    private fun onAdjustBrightness(delta: Float) {
         runOnUiThread {
             val lp = window.attributes
             val current = if (lp.screenBrightness < 0) 0.5f else lp.screenBrightness
@@ -615,7 +558,7 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         }
     }
 
-    override fun onToggleBedsideLight() {
+    private fun onToggleBedsideLight() {
         coreService?.wsClient?.toggleBedsideLight()
     }
 
@@ -677,10 +620,10 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
         binding.etHaToken.setText(appConfig.haAccessToken)
 
         val ip = coreService?.getDeviceIp() ?: "0.0.0.0"
-        binding.tvSettingsWebServerInfo.text = "Web Configurator attivo su: http://$ip:8080"
+        binding.tvSettingsWebServerInfo.text = "IP Dispositivo: $ip"
 
         val lux = lightSensorController.getCurrentLux()
-        val wsStatus = coreService?.getWebSocketStatus() ?: "Sconosciuto"
+        val wsStatus = coreService?.wsConnectionStatus ?: "Sconosciuto"
         val alarmStr = coreService?.getNextAlarmFormatted() ?: "--"
         binding.tvSettingsDiagnostic.text = "IP: $ip • Lux: ${"%.1f".format(lux)} • WS: $wsStatus • Prossima Sveglia: $alarmStr"
 
@@ -716,36 +659,34 @@ class MainActivity : AppCompatActivity(), LightSensorController.ModeChangeListen
     // =========================================================================
 
     private fun setupServiceListener() {
-        coreService?.serviceListener = object : AuraClockCoreService.CoreServiceListener {
-            override fun onWebSocketStatus(status: String) {
-                runOnUiThread {
-                    binding.tvSettingsDiagnostic.text = "WS: $status"
-                }
+        coreService?.let { service ->
+            service.onWebSocketStatus = { status ->
+                runOnUiThread { binding.tvSettingsDiagnostic.text = "WS: $status" }
             }
-
-            override fun onExternalTempUpdated(temp: String) {
-                runOnUiThread {
-                    binding.tvNightExternalTemp.text = temp
-                }
+            service.onExternalTempUpdated = { temp ->
+                runOnUiThread { binding.tvNightExternalTemp.text = temp }
             }
-
-            override fun onAlarmStateUpdated(enabled: Boolean, timeStr: String) {
-                runOnUiThread {
-                    updateAlarmBadge()
-                }
+            service.onAlarmStateUpdated = { _, _ ->
+                runOnUiThread { updateAlarmBadge() }
             }
-
-            override fun onSunriseTriggered() {
+            service.onSunriseTriggered = {
                 triggerSunriseRamp()
+            }
+            service.onHaReconnected = {
+                runOnUiThread {
+                    if (!isHaReachable) {
+                        Log.i(TAG, "HA ricollegato via WebSocket, ricarico la dashboard...")
+                        isHaReachable = true
+                        loadHaDashboard()
+                    }
+                }
             }
         }
     }
 
     private fun updateUiFromCache() {
-        coreService?.stateCache?.let { cache ->
-            binding.tvNightExternalTemp.text = cache.extTemp
-            updateAlarmBadge()
-        }
+        binding.tvNightExternalTemp.text = appConfig.extTemp
+        updateAlarmBadge()
     }
 
     private fun updateAlarmBadge() {

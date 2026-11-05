@@ -13,18 +13,14 @@ import com.custom.auraclock.config.AppConfig
 class LightSensorController(
     context: Context,
     private val appConfig: AppConfig,
-    private val listener: ModeChangeListener
+    var onModeChanged: ((Mode) -> Unit)? = null,
+    var onBrightnessChanged: ((Float) -> Unit)? = null,
+    var onLuxUpdated: ((Float) -> Unit)? = null
 ) : SensorEventListener {
 
     enum class Mode {
         DAY_MODE,
         NIGHT_MODE
-    }
-
-    interface ModeChangeListener {
-        fun onModeChanged(newMode: Mode)
-        fun onScreenBrightnessChanged(brightness: Float)
-        fun onLuxUpdated(lux: Float)
     }
 
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -58,53 +54,47 @@ class LightSensorController(
         if (event == null || event.sensor.type != Sensor.TYPE_LIGHT) return
         val lux = event.values[0]
         currentLux = lux
-        listener.onLuxUpdated(lux)
+        onLuxUpdated?.invoke(lux)
 
         val enterThreshold = appConfig.luxNightEnter
         val exitThreshold = appConfig.luxNightExit
 
         if (currentMode == Mode.DAY_MODE) {
             if (lux < enterThreshold) {
-                // Avvia o mantiene il timer per entrare in NIGHT_MODE
                 if (enterNightRunnable == null) {
                     enterNightRunnable = Runnable {
                         Log.i(TAG, "Trigger Notte: lux < $enterThreshold per 5000ms -> Passo a NIGHT_MODE")
                         currentMode = Mode.NIGHT_MODE
-                        listener.onModeChanged(Mode.NIGHT_MODE)
-                        listener.onScreenBrightnessChanged(0.01f) // 1% minimo hardware
+                        onModeChanged?.invoke(Mode.NIGHT_MODE)
+                        onBrightnessChanged?.invoke(0.01f)
                         enterNightRunnable = null
                     }
                     handler.postDelayed(enterNightRunnable!!, 5000L)
                 }
             } else {
-                // Luce tornata sufficiente prima dei 5s: annulla timer transizione notte
                 cancelEnterNightTimer()
-                // Calcola luminosità diurna dinamica proporzionale (0.25f - 0.90f)
                 val targetBrightness = calculateDayBrightness(lux)
-                listener.onScreenBrightnessChanged(targetBrightness)
+                onBrightnessChanged?.invoke(targetBrightness)
             }
-        } else { // NIGHT_MODE
+        } else {
             if (lux > exitThreshold) {
-                // Avvia o mantiene il timer per uscire da NIGHT_MODE (8000ms anti-accecamento)
                 if (exitNightRunnable == null) {
                     exitNightRunnable = Runnable {
                         Log.i(TAG, "Trigger Giorno: lux > $exitThreshold per 8000ms -> Passo a DAY_MODE")
                         currentMode = Mode.DAY_MODE
-                        listener.onModeChanged(Mode.DAY_MODE)
-                        listener.onScreenBrightnessChanged(calculateDayBrightness(currentLux))
+                        onModeChanged?.invoke(Mode.DAY_MODE)
+                        onBrightnessChanged?.invoke(calculateDayBrightness(currentLux))
                         exitNightRunnable = null
                     }
                     handler.postDelayed(exitNightRunnable!!, 8000L)
                 }
             } else {
-                // Buio ripristinato prima degli 8s: annulla timer transizione giorno
                 cancelExitNightTimer()
             }
         }
     }
 
     private fun calculateDayBrightness(lux: Float): Float {
-        // Mappa lux da 10 lux (0.25f) a 300+ lux (0.90f)
         val clampedLux = lux.coerceIn(10.0f, 300.0f)
         val ratio = (clampedLux - 10.0f) / (300.0f - 10.0f)
         return 0.25f + (ratio * (0.90f - 0.25f))

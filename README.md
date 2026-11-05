@@ -46,12 +46,8 @@ Pulsantoni gigante Snooze (+10 min) e Stop all'attivazione dell'allarme hardware
 
 ---
 
-### 🌐 Pannello Web Configurator Integrato (Porta :8080)
-Micro web server NanoHTTPD sempre attivo in background: consente di monitorare lo stato live del dispositivo (Lux, WebSocket HA, Prossima Sveglia) e configurare parametri ed entità da qualsiasi PC o smartphone sulla LAN senza bisogno di cavi o ADB.
-
-<div align="center">
-  <img src="docs/screenshots/05_web_configurator.png" alt="Web Configurator" width="760"/>
-</div>
+### 🛠️ Pannello Configurazione & Setup On-Device (Layer 4)
+Overlay nativo accessibile al primo avvio o in qualsiasi momento con un gesto segreto (5 tap rapidi nell'angolo superiore sinistro): consente di impostare l'URL di Home Assistant, il token di accesso, lanciare le impostazioni Wi-Fi di sistema e visualizzare la diagnostica live (IP, Lux, WebSocket, Prossima Sveglia) direttamente dal touchscreen.
 
 ---
 
@@ -82,7 +78,7 @@ Micro web server NanoHTTPD sempre attivo in background: consente di monitorare l
 +-------+------------------------+-------------------------+-----------------+------+
 |                      FOREGROUND SERVICE ("AuraClockCoreService")                  |
 |                                                                                   |
-|  • ConfigRepository & WebConfigServer (NanoHTTPD integrato sulla porta :8080)     |
+|  • AppConfig (SharedPreferences unificate per parametri e cache stati)       |
 |  • HaWebSocketClient (OkHttp WebSocket: Auth Bearer, State Sync, Service Calls)   |
 |  • LightSensorController (Sensor.TYPE_LIGHT, Debounce 5s/8s + Hysteresis)         |
 |  • ReliableAlarmManager (AlarmManager.setAlarmClock + MediaPlayer Fade-In)        |
@@ -132,7 +128,7 @@ Tutti i file di backend e frontend si trovano nella cartella [`homeassistant/`](
    - Installare via HACS: `custom:button-card`, `custom:layout-card`, `kiosk-mode`.
    - Creare una dashboard dedicata `/lovelace-comodino` e incollare il layout.
 3. **Generazione Token**:
-   - Creare un Long-Lived Access Token su Home Assistant e inserirlo in Aura Clock via browser (`http://<IP_OROLOGIO>:8080`) o tramite l'overlay di setup su schermo (5 tap veloci nell'angolo superiore sinistro).
+   - Creare un Long-Lived Access Token su Home Assistant e inserirlo in Aura Clock tramite l'overlay di setup su schermo (5 tap veloci nell'angolo superiore sinistro).
 
 ---
 
@@ -144,10 +140,10 @@ AuraClock/
 │   ├── src/main/
 │   │   ├── java/com/custom/auraclock/
 │   │   │   ├── MainActivity.kt                # Coordinatore 4 Layer, WebView, Touch e KeyEvents
-│   │   │   ├── AuraClockCoreService.kt        # Foreground Service (WebSocket, Sveglia, Server Web)
+│   │   │   ├── AuraClockCoreService.kt        # Foreground Service (WebSocket, Sveglia, Notifiche)
 │   │   │   ├── BootReceiver.kt                # Ripristino al riavvio del dispositivo
-│   │   │   ├── config/                        # AppConfig & WebConfigServer (NanoHTTPD)
-│   │   │   ├── network/                       # HaWebSocketClient (OkHttp) & HaStateCache
+│   │   │   ├── config/                        # AppConfig (SharedPreferences unificate)
+│   │   │   ├── network/                       # HaWebSocketClient (OkHttp WebSocket)
 │   │   │   ├── hardware/                      # LightSensorController & HardwareKeyHandler
 │   │   │   └── alarm/                         # ReliableAlarmManager, AlarmReceiver, AlarmAudioPlayer
 │   │   ├── res/                               # Layouts, colori ambra, stili e stringhe

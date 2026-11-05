@@ -4,12 +4,14 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import com.custom.auraclock.MainActivity
 import com.custom.auraclock.config.AppConfig
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.Locale
 
 class ReliableAlarmManager(private val context: Context, private val appConfig: AppConfig) {
@@ -121,29 +123,15 @@ class ReliableAlarmManager(private val context: Context, private val appConfig: 
     }
 
     fun calculateNextAlarmTimestamp(timeStr: String): Long {
-        try {
-            val parts = timeStr.trim().split(":")
-            if (parts.size < 2) return 0L
-            val hour = parts[0].toInt()
-            val min = parts[1].toInt()
-            val sec = if (parts.size >= 3) parts[2].toInt() else 0
-
-            val now = Calendar.getInstance()
-            val target = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, min)
-                set(Calendar.SECOND, sec)
-                set(Calendar.MILLISECOND, 0)
-            }
-
-            // Se l'orario per oggi è già passato, programma per domani
-            if (target.before(now)) {
-                target.add(Calendar.DAY_OF_YEAR, 1)
-            }
-            return target.timeInMillis
+        return try {
+            val time = LocalTime.parse(timeStr.trim().take(5))
+            val now = LocalDateTime.now()
+            val target = LocalDateTime.of(LocalDate.now(), time)
+            val trigger = if (target.isBefore(now)) target.plusDays(1) else target
+            trigger.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         } catch (e: Exception) {
             Log.e(TAG, "Errore calcolo timestamp da timeStr '$timeStr': ${e.message}")
-            return 0L
+            0L
         }
     }
 

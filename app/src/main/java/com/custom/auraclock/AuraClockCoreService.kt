@@ -17,12 +17,9 @@ import androidx.core.app.NotificationCompat
 import com.custom.auraclock.alarm.AlarmAudioPlayer
 import com.custom.auraclock.alarm.ReliableAlarmManager
 import com.custom.auraclock.config.AppConfig
-import com.custom.auraclock.config.WebConfigServer
-import com.custom.auraclock.network.HaStateCache
 import com.custom.auraclock.network.HaWebSocketClient
-import java.io.IOException
 
-class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
+class AuraClockCoreService : Service() {
 
     inner class LocalBinder : Binder() {
         fun getService(): AuraClockCoreService = this@AuraClockCoreService
@@ -32,75 +29,60 @@ class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
 
     lateinit var appConfig: AppConfig
         private set
-    lateinit var stateCache: HaStateCache
-        private set
     lateinit var alarmManager: ReliableAlarmManager
         private set
     lateinit var audioPlayer: AlarmAudioPlayer
         private set
     lateinit var wsClient: HaWebSocketClient
         private set
-    private var webServer: WebConfigServer? = null
 
-    private var currentLuxValue: Float = 50.0f
-    private var wsConnectionStatus: String = "Inizializzazione"
+    var currentLuxValue: Float = 50.0f
+        private set
+    var wsConnectionStatus: String = "Inizializzazione"
+        private set
 
-    interface CoreServiceListener {
-        fun onWebSocketStatus(status: String)
-        fun onExternalTempUpdated(temp: String)
-        fun onAlarmStateUpdated(enabled: Boolean, timeStr: String)
-        fun onSunriseTriggered()
-    }
-
-    var serviceListener: CoreServiceListener? = null
+    var onWebSocketStatus: ((String) -> Unit)? = null
+    var onExternalTempUpdated: ((String) -> Unit)? = null
+    var onAlarmStateUpdated: ((Boolean, String) -> Unit)? = null
+    var onSunriseTriggered: (() -> Unit)? = null
+    var onHaReconnected: (() -> Unit)? = null
 
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "AuraClockCoreService avviato")
 
         appConfig = AppConfig(this)
-        stateCache = HaStateCache(this)
         alarmManager = ReliableAlarmManager(this, appConfig)
         audioPlayer = AlarmAudioPlayer(this)
 
         startForegroundNotification()
 
-        // Inizializza WebSocket client
-        wsClient = HaWebSocketClient(appConfig, stateCache, object : HaWebSocketClient.HaEventListener {
-            override fun onConnectionStatusChanged(status: String) {
+        wsClient = HaWebSocketClient(
+            appConfig = appConfig,
+            onConnectionStatus = { status ->
                 wsConnectionStatus = status
-                serviceListener?.onWebSocketStatus(status)
-            }
-
-            override fun onAlarmStateChanged(enabled: Boolean, timeStr: String) {
+                onWebSocketStatus?.invoke(status)
+            },
+            onAlarmState = { enabled, timeStr ->
                 alarmManager.syncAlarmFromHa(enabled, timeStr)
-                serviceListener?.onAlarmStateUpdated(enabled, timeStr)
+                onAlarmStateUpdated?.invoke(enabled, timeStr)
+            },
+            onExternalTemp = { tempStr ->
+                onExternalTempUpdated?.invoke(tempStr)
+            },
+            onHaConnected = {
+                onHaReconnected?.invoke()
             }
-
-            override fun onExternalTempChanged(tempStr: String) {
-                serviceListener?.onExternalTempUpdated(tempStr)
-            }
-        })
+        )
         wsClient.connect()
-
-        // Avvia Web Server NanoHTTPD su porta 8080
-        startWebServer()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_START_ALARM_AUDIO -> {
-                audioPlayer.startAlarmWithFadeIn(appConfig.alarmMaxVolumePct)
-            }
-            ACTION_STOP_ALARM_AUDIO -> {
-                audioPlayer.stop()
-            }
-            ACTION_START_SUNRISE -> {
-                serviceListener?.onSunriseTriggered()
-            }
-            ACTION_RELOAD_CONFIG -> {
-                reloadConfiguration()
-            }
+            ACTION_START_ALARM_AUDIO -> audioPlayer.startAlarmWithFadeIn(appConfig.alarmMaxVolumePct)
+            ACTION_STOP_ALARM_AUDIO -> audioPlayer.stop()
+            ACTION_START_SUNRISE -> onSunriseTriggered?.invoke()
+            ACTION_RELOAD_CONFIG -> reloadConfiguration()
         }
         return START_STICKY
     }
@@ -109,20 +91,7 @@ class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
         Log.i(TAG, "Ricarica configurazione...")
         wsClient.disconnect()
         wsClient.connect()
-        alarmManager.syncAlarmFromHa(stateCache.alarmEnabled, stateCache.alarmTime)
-    }
-
-    private fun startWebServer() {
-        try {
-            webServer?.stop()
-            webServer = WebConfigServer(8080, appConfig, this) {
-                reloadConfiguration()
-            }
-            webServer?.start()
-            Log.i(TAG, "WebConfigServer avviato con successo su porta 8080")
-        } catch (e: IOException) {
-            Log.e(TAG, "Errore avvio WebConfigServer su porta 8080: ${e.message}")
-        }
+        alarmManager.syncAlarmFromHa(appConfig.alarmEnabled, appConfig.alarmTime)
     }
 
     private fun startForegroundNotification() {
@@ -135,15 +104,13 @@ class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
             ).apply {
                 description = "Mantiene attivi il sensore luce, la sveglia e la sincronizzazione Home Assistant"
             }
-            val nm = getSystemService(NotificationManager::class.java)
-            nm?.createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
         }
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
-            notificationIntent,
+            Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -162,16 +129,10 @@ class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
         currentLuxValue = lux
     }
 
-    // --- WebConfigServer.StatusProvider Implementation ---
-
-    override fun getCurrentLux(): Float = currentLuxValue
-
-    override fun getWebSocketStatus(): String = wsConnectionStatus
-
-    override fun getNextAlarmFormatted(): String = alarmManager.getNextAlarmFormatted()
+    fun getNextAlarmFormatted(): String = alarmManager.getNextAlarmFormatted()
 
     @Suppress("DEPRECATION")
-    override fun getDeviceIp(): String {
+    fun getDeviceIp(): String {
         return try {
             val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val ipInt = wm.connectionInfo.ipAddress
@@ -187,7 +148,6 @@ class AuraClockCoreService : Service(), WebConfigServer.StatusProvider {
         super.onDestroy()
         wsClient.disconnect()
         audioPlayer.stop()
-        webServer?.stop()
         Log.i(TAG, "AuraClockCoreService terminato")
     }
 
