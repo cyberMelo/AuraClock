@@ -257,9 +257,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadHaDashboard() {
-        val baseUrl = appConfig.haBaseUrl
+        val baseUrl = appConfig.haBaseUrl.trimEnd('/')
         val token = appConfig.haAccessToken
-        val dashboardPath = appConfig.haDashboardPath
+        val rawPath = appConfig.haDashboardPath.trim()
+        val dashboardPath = if (rawPath.startsWith("/")) rawPath else "/$rawPath"
 
         if (baseUrl.isNotBlank() && token.isNotBlank()) {
             val targetUrl = "$baseUrl$dashboardPath"
