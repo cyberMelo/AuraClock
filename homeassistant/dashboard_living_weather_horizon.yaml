@@ -11,6 +11,7 @@ views:
     entity: weather.casa
     triggers_update:
     - sensor.time
+    - sensor.time_2
     - sensor.temperatura_esterna
     - sensor.meteo_comodino_minmax
     - input_boolean.sveglia_comodino_attiva
@@ -232,27 +233,36 @@ views:
         \ />\n      </svg>\n      <svg class=\"cloud-layer cloud-2\" viewBox=\"0 0\
         \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
         \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
-        \ />\n      </svg>\n      ${rainHtml}\n      ${snowHtml}\n    </div>\n\n \
-        \   <div class=\"layout-p1\">\n      <div class=\"p1-top\">\n        <div\
-        \ class=\"p1-date-pill\">\U0001F4C5 ${dateStr}</div>\n        <div class=\"\
-        p1-weather-badge\">\n          <span>${icon}</span>\n          <span>${desc}${windSpeed}</span>\n\
-        \        </div>\n      </div>\n\n      <div class=\"p1-center-clock\">\n \
-        \       <div class=\"p1-time\">\n          <span>${hh}</span><span class=\"\
-        p1-colon\">:</span><span class=\"p1-minutes\">${mm}</span>\n        </div>\n\
-        \      </div>\n\n      <div class=\"p1-bottom-dock\">\n        <div class=\"\
-        p1-temp-group\">\n          <div class=\"p1-temp-main\">\n            <span\
-        \ class=\"p1-temp-val\">${isNaN(temp) ? '--' : temp}</span>\n            <span\
-        \ class=\"p1-temp-unit\">°C</span>\n          </div>\n          <div class=\"\
-        p1-temp-meta\">\n            <span class=\"p1-temp-label\">\U0001F321️ Temp.\
-        \ Esterna</span>\n            <div class=\"p1-minmax\">\n              <span\
-        \ style=\"color:#38bdf8;\">↓ ${tMin}°</span>\n              <span style=\"\
-        color:#fb923c;\">↑ ${tMax}°</span>\n            </div>\n          </div>\n\
-        \        </div>\n\n        <div class=\"alarm-pill-btn ${alarmOn ? '' : 'off'}\"\
-        >\n          <div class=\"alarm-text-col\">\n            <span class=\"alarm-title\"\
-        >${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA SPENTA'}</span>\n            <span\
-        \ class=\"alarm-time-val\">${alarmTime}</span>\n          </div>\n       \
-        \   <div class=\"alarm-status-dot\">${alarmOn ? '\U0001F514' : '\U0001F515\
-        '}</div>\n        </div>\n      </div>\n    </div>\n  `;\n]]]\n"
+        \ />\n      </svg>\n      ${rainHtml}\n      ${snowHtml}\n    <img src=\"\
+        data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'/>\" style=\"\
+        display:none;\" onload=\"(function(img){\n  if (window._auraClockTimer) clearInterval(window._auraClockTimer);\n\
+        \  window._auraClockTimer = setInterval(function(){\n    var now = new Date();\n\
+        \    var h = String(now.getHours()).padStart(2, '0');\n    var m = String(now.getMinutes()).padStart(2,\
+        \ '0');\n    var root = img.getRootNode ? img.getRootNode() : document;\n\
+        \    var elH = root.querySelectorAll('.p1-hours');\n    var elM = root.querySelectorAll('.p1-minutes');\n\
+        \    elH.forEach(function(el){ if (el.textContent !== h) el.textContent =\
+        \ h; });\n    elM.forEach(function(el){ if (el.textContent !== m) el.textContent\
+        \ = m; });\n  }, 1000);\n})(this)\"/>\n    </div>\n\n    <div class=\"layout-p1\"\
+        >\n      <div class=\"p1-top\">\n        <div class=\"p1-date-pill\">\U0001F4C5\
+        \ ${dateStr}</div>\n        <div class=\"p1-weather-badge\">\n          <span>${icon}</span>\n\
+        \          <span>${desc}${windSpeed}</span>\n        </div>\n      </div>\n\
+        \n      <div class=\"p1-center-clock\">\n        <div class=\"p1-time\">\n\
+        \          <span class=\"p1-hours\">${hh}</span><span class=\"p1-colon\">:</span><span\
+        \ class=\"p1-minutes\">${mm}</span>\n        </div>\n      </div>\n\n    \
+        \  <div class=\"p1-bottom-dock\">\n        <div class=\"p1-temp-group\">\n\
+        \          <div class=\"p1-temp-main\">\n            <span class=\"p1-temp-val\"\
+        >${isNaN(temp) ? '--' : temp}</span>\n            <span class=\"p1-temp-unit\"\
+        >°C</span>\n          </div>\n          <div class=\"p1-temp-meta\">\n   \
+        \         <span class=\"p1-temp-label\">\U0001F321️ Temp. Esterna</span>\n\
+        \            <div class=\"p1-minmax\">\n              <span style=\"color:#38bdf8;\"\
+        >↓ ${tMin}°</span>\n              <span style=\"color:#fb923c;\">↑ ${tMax}°</span>\n\
+        \            </div>\n          </div>\n        </div>\n\n        <div class=\"\
+        alarm-pill-btn ${alarmOn ? '' : 'off'}\">\n          <div class=\"alarm-text-col\"\
+        >\n            <span class=\"alarm-title\">${alarmOn ? 'SVEGLIA ATTIVA' :\
+        \ 'SVEGLIA SPENTA'}</span>\n            <span class=\"alarm-time-val\">${alarmTime}</span>\n\
+        \          </div>\n          <div class=\"alarm-status-dot\">${alarmOn ? '\U0001F514\
+        ' : '\U0001F515'}</div>\n        </div>\n      </div>\n    </div>\n  `;\n\
+        ]]]\n"
 - title: Imposta Orario Sveglia
   path: orario
   type: custom:grid-layout
