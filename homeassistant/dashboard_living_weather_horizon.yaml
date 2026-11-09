@@ -61,6 +61,8 @@ views:
                     return 'radial-gradient(circle at 70% 15%, rgba(124, 58, 237, 0.32) 0%, rgba(17, 24, 39, 0.9) 55%, #04060c 100%)';
                   if (w === 'clear-night')
                     return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a 100%)';
+                  if (w === 'cloudy' || w === 'fog')
+                    return 'radial-gradient(circle at 75% 20%, rgba(51, 65, 85, 0.55) 0%, rgba(30, 41, 59, 0.85) 45%, #070b14 90%)';
                   return 'radial-gradient(circle at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';
                 ]]]
           custom_fields:
@@ -241,7 +243,7 @@ views:
             line-height: 0.9;
             letter-spacing: -6px;
             color: #ffffff;
-            text-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
+            text-shadow: 0 6px 24px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.95);
             display: inline-flex;
             align-items: baseline;
           }
@@ -249,12 +251,11 @@ views:
             color: #38bdf8;
             margin: 0 4px;
             animation: softBlink 2s infinite ease-in-out;
+            text-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);
           }
           .p1-minutes {
-            background: linear-gradient(180deg, #ffffff 20%, #93c5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 18px 45px rgba(0, 0, 0, 0.6));
+            color: #ffffff;
+            text-shadow: 0 6px 24px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0, 0, 0, 0.95);
           }
 
           @keyframes softBlink {
@@ -335,6 +336,10 @@ views:
             background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
             box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.3);
+          }
+          .alarm-pill-btn:active {
+            transform: scale(0.94);
+            transition: transform 0.08s ease;
           }
           .alarm-pill-btn.off {
             background: rgba(30, 41, 59, 0.85);
