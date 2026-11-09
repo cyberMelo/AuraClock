@@ -194,6 +194,9 @@ class MainActivity : AppCompatActivity() {
 
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.setBackgroundColor(Color.BLACK)
+        webView.overScrollMode = View.OVER_SCROLL_NEVER
+        webView.isVerticalScrollBarEnabled = false
+        webView.isHorizontalScrollBarEnabled = false
 
         webView.settings.apply {
             javaScriptEnabled = true
