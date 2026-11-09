@@ -53,6 +53,9 @@ Overlay nativo accessibile al primo avvio o in qualsiasi momento con un gesto se
 
 ## 🌟 Caratteristiche Principali
 
+- **Launcher di Sistema Nativo & Avvio Immediato**: Sostituisce la shell proprietaria Google Assistant/Chromecast (`com.google.android.apps.mediashell`). All'avvio del dispositivo o dopo una mancata corrente, Android 9 carica direttamente Aura Clock come Home Launcher predefinito senza mai mostrare schermate di setup di Google Home.
+- **ADB over Wi-Fi Persistente**: Porta di debug TCP 5555 abilitata a livello persistente (`persist.adb.tcp.port = 5555`). Permette di aggiornare, installare APK e acquisire screenshot da remoto via Wi-Fi senza mai più dover collegare il cavo micro-USB al PC.
+- **Canvas Dinamico "Living Weather Horizon"**: Sfondo e animazioni fluide a tutto schermo sincronizzati con l'entità meteo di Home Assistant (Soleggiato, Nuvoloso con alone solare diffuso, Notte stellata con 24 stelle scintillanti, Pioggia dinamica, Temporale con lampi intermittenti, Banchi di nebbia e Neve).
 - **Affidabilità Critica 100% Offline-Safe**: La sveglia usa `AlarmManager.setAlarmClock()` nativo e riproduce un file audio locale progressivo (`assets/gentle_alarm.mp3`) in loop. Suonerà puntuale anche a router spento, server Home Assistant offline o dopo un riavvio hardware improvviso.
 - **Zero Schermate di Errore o Login**: Nessun banner di errore WebView (`net::ERR_CONNECTION_REFUSED`) o form di login HA. In caso di blackout, l'app passa silenziosamente sul Layer 2 Ambra e un worker periodico in background ripristina la dashboard non appena Home Assistant torna raggiungibile.
 - **Hysteresis Anti-Accecamento**: Macchina a stati con debounce asimmetrico: entra in modalità notte dopo 5 secondi continui di buio (< 2 lux) ed esce solo dopo 8 secondi continui di luce (> 8 lux), evitando che l'accensione di uno smartphone al buio abbagli la stanza.
