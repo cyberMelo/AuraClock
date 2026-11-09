@@ -32,6 +32,19 @@ class BootReceiver : BroadcastReceiver() {
             } else {
                 context.startService(serviceIntent)
             }
+
+            // Avvia esplicitamente MainActivity all'accensione del dispositivo
+            val activityIntent = Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            context.startActivity(activityIntent)
+
+            // Garantisce che ADB su porta 5555 rimanga sempre attivo via Wi-Fi ad ogni boot
+            try {
+                Runtime.getRuntime().exec(arrayOf("su", "-c", "setprop service.adb.tcp.port 5555 && stop adbd && start adbd"))
+            } catch (e: Exception) {
+                Log.w(TAG, "Impossibile attivare ADB Wi-Fi: ${e.message}")
+            }
         }
     }
 
