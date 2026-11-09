@@ -315,12 +315,21 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 14px
       - background: rgba(30, 41, 59, 0.85)
       - border: 1px solid rgba(56, 189, 248, 0.35)
+      grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      name:
       - color: '#38bdf8'
-      - font-size: 14px
+      - font-size: 13px
       - font-weight: '800'
+      - justify-self: center
+      - align-self: center
+    show_icon: false
   - type: custom:button-card
     entity: input_datetime.sveglia_comodino_orario
     view_layout:
@@ -331,16 +340,29 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 18px
       - background: rgba(15, 23, 42, 0.75)
       - border: 1.5px solid rgba(56, 189, 248, 0.4)
+      grid:
+      - grid-template-areas: '"val"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      custom_fields:
+        val:
+        - width: 100%
+        - height: 100%
+        - display: flex
+        - align-items: center
+        - justify-content: center
     custom_fields:
       val: "[[[\n  const hh = (entity.state || '07:30:00').substring(0, 2);\n  return\
         \ `\n    <div style=\"display:flex; flex-direction:column; align-items:center;\
-        \ justify-content:center;\">\n      <span style=\"font-size:56px; font-weight:900;\
-        \ line-height:0.95; letter-spacing:-1px; color:#ffffff;\">${hh}</span>\n \
-        \     <span style=\"font-size:9px; font-weight:800; letter-spacing:1px; text-transform:uppercase;\
-        \ color:#94a3b8; margin-top:2px;\">ORE</span>\n    </div>\n  `;\n]]]"
+        \ justify-content:center; width:100%; height:100%;\">\n      <span style=\"\
+        font-size:54px; font-weight:900; line-height:1; letter-spacing:-1px; color:#ffffff;\"\
+        >${hh}</span>\n      <span style=\"font-size:10px; font-weight:800; letter-spacing:1.5px;\
+        \ text-transform:uppercase; color:#94a3b8; margin-top:4px;\">ORE</span>\n\
+        \    </div>\n  `;\n]]]"
   - type: custom:button-card
     name: ▼ -1 ORA
     view_layout:
@@ -354,12 +376,21 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 14px
       - background: rgba(30, 41, 59, 0.85)
       - border: 1px solid rgba(56, 189, 248, 0.35)
+      grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      name:
       - color: '#38bdf8'
-      - font-size: 14px
+      - font-size: 13px
       - font-weight: '800'
+      - justify-self: center
+      - align-self: center
+    show_icon: false
   - type: custom:button-card
     name: ':'
     view_layout:
@@ -368,11 +399,21 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - background: transparent
       - border: none
+      grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      name:
       - color: '#f59e0b'
       - font-size: 46px
       - font-weight: '900'
+      - line-height: '1'
+      - justify-self: center
+      - align-self: center
+    show_icon: false
   - type: custom:button-card
     name: ▲ +5 MIN
     view_layout:
@@ -386,12 +427,21 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 14px
       - background: rgba(30, 41, 59, 0.85)
       - border: 1px solid rgba(251, 146, 60, 0.35)
+      grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      name:
       - color: '#fb923c'
-      - font-size: 14px
+      - font-size: 13px
       - font-weight: '800'
+      - justify-self: center
+      - align-self: center
+    show_icon: false
   - type: custom:button-card
     entity: input_datetime.sveglia_comodino_orario
     view_layout:
@@ -402,16 +452,29 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 18px
       - background: rgba(15, 23, 42, 0.75)
       - border: 1.5px solid rgba(245, 158, 11, 0.45)
+      grid:
+      - grid-template-areas: '"val"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      custom_fields:
+        val:
+        - width: 100%
+        - height: 100%
+        - display: flex
+        - align-items: center
+        - justify-content: center
     custom_fields:
       val: "[[[\n  const mm = (entity.state || '07:30:00').substring(3, 5);\n  return\
         \ `\n    <div style=\"display:flex; flex-direction:column; align-items:center;\
-        \ justify-content:center;\">\n      <span style=\"font-size:56px; font-weight:900;\
-        \ line-height:0.95; letter-spacing:-1px; color:#ffffff;\">${mm}</span>\n \
-        \     <span style=\"font-size:9px; font-weight:800; letter-spacing:1px; text-transform:uppercase;\
-        \ color:#94a3b8; margin-top:2px;\">MINUTI</span>\n    </div>\n  `;\n]]]"
+        \ justify-content:center; width:100%; height:100%;\">\n      <span style=\"\
+        font-size:54px; font-weight:900; line-height:1; letter-spacing:-1px; color:#ffffff;\"\
+        >${mm}</span>\n      <span style=\"font-size:10px; font-weight:800; letter-spacing:1.5px;\
+        \ text-transform:uppercase; color:#94a3b8; margin-top:4px;\">MINUTI</span>\n\
+        \    </div>\n  `;\n]]]"
   - type: custom:button-card
     name: ▼ -5 MIN
     view_layout:
@@ -425,12 +488,21 @@ views:
     styles:
       card:
       - height: 100%
+      - padding: '0'
       - border-radius: 14px
       - background: rgba(30, 41, 59, 0.85)
       - border: 1px solid rgba(251, 146, 60, 0.35)
+      grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr
+      name:
       - color: '#fb923c'
-      - font-size: 14px
+      - font-size: 13px
       - font-weight: '800'
+      - justify-self: center
+      - align-self: center
+    show_icon: false
   - type: custom:button-card
     entity: input_datetime.sveglia_comodino_orario
     view_layout:
