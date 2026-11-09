@@ -16,12 +16,12 @@ views:
     path: "0"
     type: custom:grid-layout
     layout:
-      grid-template-columns: 800px
-      grid-template-rows: 480px
+      grid-template-columns: 100vw
+      grid-template-rows: 100vh
       padding: 0
       margin: 0
-      height: 480px
-      width: 800px
+      height: 100vh
+      width: 100vw
       overflow: hidden
     cards:
       - type: custom:button-card
@@ -51,6 +51,7 @@ views:
             - padding: 0
             - position: relative
             - overflow: hidden
+            - zoom: 0.666667
             - background: |
                 [[[
                   const w = entity.state;
@@ -62,6 +63,13 @@ views:
                     return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a 100%)';
                   return 'radial-gradient(circle at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';
                 ]]]
+          custom_fields:
+            horizon_view:
+              - position: absolute
+              - top: 0px
+              - left: 0px
+              - width: 800px
+              - height: 480px
         extra_styles: |
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap');
 
@@ -73,7 +81,10 @@ views:
           /* STAGE METEO ANIMATO A TUTTO SCHERMO */
           .weather-stage {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
             pointer-events: none;
             overflow: hidden;
@@ -144,7 +155,10 @@ views:
           /* Lampo Temporale */
           .lightning-flash {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(224, 242, 254, 0.25);
             animation: flashAnim 7s infinite;
             pointer-events: none;
@@ -171,7 +185,10 @@ views:
           /* PROPOSTA 1: LAYOUT CANVAS */
           .layout-p1 {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 5;
             padding: 28px 34px;
             display: flex;
@@ -366,10 +383,14 @@ views:
               const hh = String(now.getHours()).padStart(2, '0');
               const mm = String(now.getMinutes()).padStart(2, '0');
 
-              const temp = parseFloat(states['sensor.temperatura_esterna']?.state || 0).toFixed(1);
-              const minMaxAttrs = states['sensor.meteo_comodino_minmax']?.attributes || {};
-              const tMin = minMaxAttrs.temp_min ?? '--';
-              const tMax = minMaxAttrs.temp_max ?? '--';
+              const sTemp = states['sensor.temperatura_esterna'];
+              const tempVal = (sTemp && sTemp.state) ? sTemp.state : (entity.attributes.temperature || 0);
+              const temp = parseFloat(tempVal).toFixed(1);
+
+              const sMinMax = states['sensor.meteo_comodino_minmax'];
+              const minMaxAttrs = (sMinMax && sMinMax.attributes) ? sMinMax.attributes : {};
+              const tMin = (minMaxAttrs.temp_min !== undefined && minMaxAttrs.temp_min !== null) ? minMaxAttrs.temp_min : '--';
+              const tMax = (minMaxAttrs.temp_max !== undefined && minMaxAttrs.temp_max !== null) ? minMaxAttrs.temp_max : '--';
 
               const wState = entity.state;
               const windSpeed = entity.attributes.wind_speed ? ` • Vento ${entity.attributes.wind_speed} km/h` : '';
@@ -390,8 +411,10 @@ views:
               };
               const [desc, icon] = mapMeteo[wState] || ['Variabile', '⛅'];
 
-              const alarmOn = states['input_boolean.sveglia_comodino_attiva']?.state === 'on';
-              const alarmRaw = states['input_datetime.sveglia_comodino_orario']?.state || '07:30:00';
+              const sAlarm = states['input_boolean.sveglia_comodino_attiva'];
+              const alarmOn = (sAlarm && sAlarm.state === 'on');
+              const sAlarmTime = states['input_datetime.sveglia_comodino_orario'];
+              const alarmRaw = (sAlarmTime && sAlarmTime.state) ? sAlarmTime.state : '07:30:00';
               const alarmTime = alarmRaw.substring(0, 5);
 
               let rainHtml = '';
