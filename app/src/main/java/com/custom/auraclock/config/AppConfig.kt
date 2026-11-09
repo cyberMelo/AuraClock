@@ -56,6 +56,10 @@ class AppConfig(context: Context) {
         get() = prefs.getFloat(KEY_NIGHT_PEEK_BRIGHTNESS, DEFAULT_NIGHT_PEEK_BRIGHTNESS)
         set(value) = prefs.edit().putFloat(KEY_NIGHT_PEEK_BRIGHTNESS, value).apply()
 
+    var nightBrightness: Float
+        get() = prefs.getFloat(KEY_NIGHT_BRIGHTNESS, DEFAULT_NIGHT_BRIGHTNESS)
+        set(value) = prefs.edit().putFloat(KEY_NIGHT_BRIGHTNESS, value).apply()
+
     var alarmSnoozeMinutes: Int
         get() = prefs.getInt(KEY_ALARM_SNOOZE_MINUTES, DEFAULT_ALARM_SNOOZE_MINUTES)
         set(value) = prefs.edit().putInt(KEY_ALARM_SNOOZE_MINUTES, value).apply()
@@ -114,6 +118,7 @@ class AppConfig(context: Context) {
             KEY_LUX_NIGHT_EXIT to luxNightExit,
             KEY_NIGHT_PEEK_DURATION_SEC to nightPeekDurationSec,
             KEY_NIGHT_PEEK_BRIGHTNESS to nightPeekBrightness,
+            KEY_NIGHT_BRIGHTNESS to nightBrightness,
             KEY_ALARM_SNOOZE_MINUTES to alarmSnoozeMinutes,
             KEY_ALARM_MAX_VOLUME_PCT to alarmMaxVolumePct,
             KEY_SUNRISE_DURATION_MIN to sunriseDurationMin
@@ -135,6 +140,7 @@ class AppConfig(context: Context) {
         const val KEY_LUX_NIGHT_EXIT = "lux_night_exit"
         const val KEY_NIGHT_PEEK_DURATION_SEC = "night_peek_duration_sec"
         const val KEY_NIGHT_PEEK_BRIGHTNESS = "night_peek_brightness"
+        const val KEY_NIGHT_BRIGHTNESS = "night_brightness"
         const val KEY_ALARM_SNOOZE_MINUTES = "alarm_snooze_minutes"
         const val KEY_ALARM_MAX_VOLUME_PCT = "alarm_max_volume_pct"
         const val KEY_SUNRISE_DURATION_MIN = "sunrise_duration_min"
@@ -157,6 +163,7 @@ class AppConfig(context: Context) {
         const val DEFAULT_LUX_NIGHT_EXIT = 8.0f
         const val DEFAULT_NIGHT_PEEK_DURATION_SEC = 15
         const val DEFAULT_NIGHT_PEEK_BRIGHTNESS = 0.12f
+        const val DEFAULT_NIGHT_BRIGHTNESS = 0.06f
         const val DEFAULT_ALARM_SNOOZE_MINUTES = 10
         const val DEFAULT_ALARM_MAX_VOLUME_PCT = 85
         const val DEFAULT_SUNRISE_DURATION_MIN = 10

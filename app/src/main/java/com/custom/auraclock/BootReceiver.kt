@@ -39,9 +39,9 @@ class BootReceiver : BroadcastReceiver() {
             }
             context.startActivity(activityIntent)
 
-            // Garantisce che ADB su porta 5555 rimanga sempre attivo via Wi-Fi ad ogni boot
+            // Garantisce che ADB su porta 5555 rimanga sempre attivo via Wi-Fi e fissa timezone Europe/Rome ad ogni boot
             try {
-                Runtime.getRuntime().exec(arrayOf("su", "-c", "setprop service.adb.tcp.port 5555 && stop adbd && start adbd"))
+                Runtime.getRuntime().exec(arrayOf("su", "-c", "setprop service.adb.tcp.port 5555 && stop adbd && start adbd && setprop persist.sys.timezone Europe/Rome && service call alarm 3 s16 Europe/Rome"))
             } catch (e: Exception) {
                 Log.w(TAG, "Impossibile attivare ADB Wi-Fi: ${e.message}")
             }

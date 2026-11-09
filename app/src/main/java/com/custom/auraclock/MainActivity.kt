@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
             binding.layerNightOverlay.visibility = View.VISIBLE
             binding.layerNightOverlay.animate().alpha(1f).setDuration(500).start()
             binding.webViewLivingHorizon.visibility = View.INVISIBLE
-            setWindowBrightness(0.01f)
+            setWindowBrightness(appConfig.nightBrightness)
         } else {
             binding.layerNightOverlay.animate().alpha(0f).setDuration(500).withEndAction {
                 binding.layerNightOverlay.visibility = View.GONE
@@ -353,7 +353,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setWindowBrightness(value: Float) {
-        val clamped = value.coerceIn(0.01f, 1.0f)
+        val clamped = value.coerceIn(0.02f, 1.0f)
         val lp = window.attributes
         lp.screenBrightness = clamped
         window.attributes = lp
@@ -435,7 +435,8 @@ class MainActivity : AppCompatActivity() {
                     val elapsed = System.currentTimeMillis() - startTime
                     val progress = (elapsed.toFloat() / totalDurationMs).coerceIn(0f, 1f)
 
-                    val currentBrightness = 0.01f + progress * (0.80f - 0.01f)
+                    val startBri = appConfig.nightBrightness
+                    val currentBrightness = startBri + progress * (0.80f - startBri)
                     setWindowBrightness(currentBrightness)
 
                     val blendedColor = androidx.core.graphics.ColorUtils.blendARGB(
