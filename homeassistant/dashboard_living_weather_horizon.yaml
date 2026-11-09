@@ -43,11 +43,15 @@ views:
           \ at 70% 15%, rgba(124, 58, 237, 0.32) 0%, rgba(17, 24, 39, 0.9) 55%, #04060c\
           \ 100%)';\n  if (w === 'clear-night')\n    return 'radial-gradient(circle\
           \ at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a\
-          \ 100%)';\n  if (w === 'cloudy' || w === 'fog')\n    return 'radial-gradient(circle\
-          \ at 75% 18%, rgba(148, 163, 184, 0.75) 0%, rgba(71, 85, 105, 0.85) 35%,\
-          \ rgba(30, 41, 59, 0.95) 70%, #0c1322 100%)';\n  return 'radial-gradient(circle\
-          \ at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%,\
-          \ #070b14 90%)';\n]]]\n"
+          \ 100%)';\n  if (w === 'snowy' || w === 'snowy-rainy')\n    return 'radial-gradient(circle\
+          \ at 60% 15%, rgba(186, 230, 253, 0.65) 0%, rgba(125, 211, 252, 0.35) 30%,\
+          \ rgba(30, 41, 59, 0.9) 70%, #090e1a 100%)';\n  if (w === 'fog')\n    return\
+          \ 'radial-gradient(ellipse at 50% 45%, rgba(148, 163, 184, 0.65) 0%, rgba(100,\
+          \ 116, 139, 0.75) 45%, rgba(30, 41, 59, 0.95) 80%, #0c1322 100%)';\n  if\
+          \ (w === 'cloudy')\n    return 'radial-gradient(circle at 75% 18%, rgba(148,\
+          \ 163, 184, 0.75) 0%, rgba(71, 85, 105, 0.85) 35%, rgba(30, 41, 59, 0.95)\
+          \ 70%, #0c1322 100%)';\n  return 'radial-gradient(circle at 82% 22%, rgba(251,\
+          \ 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';\n]]]"
       custom_fields:
         horizon_view:
         - position: absolute
@@ -150,7 +154,23 @@ views:
       \ 800;\n  line-height: 1.1;\n  color: #ffffff;\n}\n.alarm-status-dot {\n  width:\
       \ 42px;\n  height: 42px;\n  border-radius: 50%;\n  background: rgba(255, 255,\
       \ 255, 0.22);\n  display: flex;\n  align-items: center;\n  justify-content:\
-      \ center;\n  font-size: 20px;\n}\n"
+      \ center;\n  font-size: 20px;\n}\n\n\n/* Fiocchi di Neve */\n.snowflake {\n\
+      \  position: absolute;\n  top: -10px;\n  background: #ffffff;\n  border-radius:\
+      \ 50%;\n  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);\n  animation: fallSnow\
+      \ linear infinite;\n  pointer-events: none;\n}\n@keyframes fallSnow {\n  0%\
+      \ { transform: translate3d(0, -10px, 0); opacity: 0; }\n  15% { opacity: 0.9;\
+      \ }\n  90% { opacity: 0.85; }\n  100% { transform: translate3d(25px, 500px,\
+      \ 0); opacity: 0; }\n}\n\n/* Banchi di Nebbia */\n.fog-layer {\n  position:\
+      \ absolute;\n  top: 0;\n  left: -30%;\n  width: 160%;\n  height: 100%;\n  pointer-events:\
+      \ none;\n}\n.fog-1 {\n  background: radial-gradient(ellipse at 50% 55%, rgba(226,\
+      \ 232, 240, 0.22) 0%, rgba(148, 163, 184, 0.1) 50%, transparent 75%);\n  filter:\
+      \ blur(16px);\n  animation: fogDrift 22s ease-in-out infinite alternate;\n}\n\
+      .fog-2 {\n  background: radial-gradient(ellipse at 45% 65%, rgba(203, 213, 225,\
+      \ 0.16) 0%, rgba(100, 116, 139, 0.08) 55%, transparent 80%);\n  filter: blur(20px);\n\
+      \  animation: fogDrift 30s ease-in-out infinite alternate-reverse;\n}\n@keyframes\
+      \ fogDrift {\n  0% { transform: translate3d(-35px, 0, 0); opacity: 0.6; }\n\
+      \  50% { opacity: 0.95; }\n  100% { transform: translate3d(35px, -12px, 0);\
+      \ opacity: 0.65; }\n}\n"
     custom_fields:
       horizon_view: "[[[\n  const now = new Date();\n  const giorni = ['DOMENICA','LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO'];\n\
         \  const mesi = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];\n\
@@ -168,14 +188,17 @@ views:
         \ km/h` : '';\n  \n  const isSunny = wState === 'sunny' || wState === 'partlycloudy';\n\
         \  const isRainy = wState === 'rainy' || wState === 'pouring';\n  const isStorm\
         \ = wState === 'lightning' || wState === 'lightning-rainy';\n  const isNight\
-        \ = wState === 'clear-night';\n  const isCloudy = wState === 'cloudy' || wState\
-        \ === 'fog';\n\n  const mapMeteo = {\n    'sunny': ['Soleggiato', '☀️'],\n\
-        \    'clear-night': ['Cielo Sereno', '\U0001F319'],\n    'partlycloudy': ['Poco\
-        \ Nuvoloso', '⛅'],\n    'cloudy': ['Nuvoloso', '☁️'],\n    'fog': ['Nebbia',\
-        \ '\U0001F32B️'],\n    'lightning': ['Temporale', '⛈️'],\n    'rainy': ['Pioggia',\
+        \ = wState === 'clear-night';\n  const isCloudy = wState === 'cloudy';\n \
+        \ const isFog = wState === 'fog';\n  const isSnowy = wState === 'snowy' ||\
+        \ wState === 'snowy-rainy';\n  \n  const mapMeteo = {\n    'sunny': ['Soleggiato',\
+        \ '☀️'],\n    'clear-night': ['Cielo Sereno', '\U0001F319'],\n    'partlycloudy':\
+        \ ['Poco Nuvoloso', '⛅'],\n    'cloudy': ['Nuvoloso', '☁️'],\n    'fog': ['Nebbia',\
+        \ '\U0001F32B️'],\n    'snowy': ['Neve', '❄️'],\n    'snowy-rainy': ['Nevischio',\
+        \ '\U0001F328️'],\n    'lightning': ['Temporale', '⛈️'],\n    'rainy': ['Pioggia',\
         \ '\U0001F327️'],\n    'pouring': ['Pioggia Forte', '⛈️'],\n    'lightning-rainy':\
-        \ ['Temporale', '⛈️']\n  };\n  const [desc, icon] = mapMeteo[wState] || ['Variabile',\
-        \ '⛅'];\n\n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
+        \ ['Temporale', '⛈️'],\n    'windy': ['Ventoso', '\U0001F4A8'],\n    'windy-variant':\
+        \ ['Ventoso', '\U0001F4A8']\n  };\n  const [desc, icon] = mapMeteo[wState]\
+        \ || ['Variabile', '⛅'];\n\n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
         \  const alarmOn = (sAlarm && sAlarm.state === 'on');\n  const sAlarmTime\
         \ = states['input_datetime.sveglia_comodino_orario'];\n  const alarmRaw =\
         \ (sAlarmTime && sAlarmTime.state) ? sAlarmTime.state : '07:30:00';\n  const\
@@ -190,17 +213,27 @@ views:
         \ size = (2 + Math.random() * 2).toFixed(1);\n      const del = (Math.random()\
         \ * 3).toFixed(1);\n      starsHtml += `<div class=\"star\" style=\"width:${size}px;\
         \ height:${size}px; left:${left}%; top:${top}%; animation-delay:${del}s;\"\
-        ></div>`;\n    }\n  }\n\n  return `\n    <div class=\"weather-stage\">\n \
-        \     ${isSunny ? '<div class=\"sun-orb\"></div>' : ''}\n      ${isCloudy\
-        \ ? '<div class=\"cloud-orb\"></div>' : ''}\n      ${isStorm ? '<div class=\"\
-        lightning-flash\"></div>' : ''}\n      ${starsHtml}\n      <svg class=\"cloud-layer\
-        \ cloud-1\" viewBox=\"0 0 200 100\">\n        <path d=\"M 35 80 Q 15 80 15\
-        \ 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162\
-        \ 64 Q 162 80 140 80 Z\" />\n      </svg>\n      <svg class=\"cloud-layer\
-        \ cloud-2\" viewBox=\"0 0 200 100\">\n        <path d=\"M 35 80 Q 15 80 15\
-        \ 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162\
-        \ 64 Q 162 80 140 80 Z\" />\n      </svg>\n      ${rainHtml}\n    </div>\n\
-        \n    <div class=\"layout-p1\">\n      <div class=\"p1-top\">\n        <div\
+        ></div>`;\n    }\n  }\n\n  \n  let snowHtml = '';\n  if (isSnowy) {\n    for\
+        \ (let i = 0; i < 24; i++) {\n      const left = Math.floor(Math.random()\
+        \ * 102);\n      const dur = (3.0 + Math.random() * 3.0).toFixed(2);\n   \
+        \   const del = (Math.random() * 3.5).toFixed(2);\n      const size = (3 +\
+        \ Math.random() * 3.5).toFixed(1);\n      const op = (0.55 + Math.random()\
+        \ * 0.4).toFixed(2);\n      snowHtml += `<div class=\"snowflake\" style=\"\
+        width:${size}px; height:${size}px; left:${left}%; animation-duration:${dur}s;\
+        \ animation-delay:${del}s; opacity:${op};\"></div>`;\n    }\n  }\n\n  let\
+        \ fogHtml = '';\n  if (isFog) {\n    fogHtml = '<div class=\"fog-layer fog-1\"\
+        ></div><div class=\"fog-layer fog-2\"></div>';\n  }\n\n  return `\n    <div\
+        \ class=\"weather-stage\">\n      ${isSunny ? '<div class=\"sun-orb\"></div>'\
+        \ : ''}\n      ${isCloudy ? '<div class=\"cloud-orb\"></div>' : ''}\n    \
+        \  ${isStorm ? '<div class=\"lightning-flash\"></div>' : ''}\n      ${starsHtml}\n\
+        \      ${fogHtml}\n      <svg class=\"cloud-layer cloud-1\" viewBox=\"0 0\
+        \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
+        \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
+        \ />\n      </svg>\n      <svg class=\"cloud-layer cloud-2\" viewBox=\"0 0\
+        \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
+        \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
+        \ />\n      </svg>\n      ${rainHtml}\n      ${snowHtml}\n    </div>\n\n \
+        \   <div class=\"layout-p1\">\n      <div class=\"p1-top\">\n        <div\
         \ class=\"p1-date-pill\">\U0001F4C5 ${dateStr}</div>\n        <div class=\"\
         p1-weather-badge\">\n          <span>${icon}</span>\n          <span>${desc}${windSpeed}</span>\n\
         \        </div>\n      </div>\n\n      <div class=\"p1-center-clock\">\n \
