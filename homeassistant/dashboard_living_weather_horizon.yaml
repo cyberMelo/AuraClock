@@ -44,9 +44,10 @@ views:
           \ 100%)';\n  if (w === 'clear-night')\n    return 'radial-gradient(circle\
           \ at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a\
           \ 100%)';\n  if (w === 'cloudy' || w === 'fog')\n    return 'radial-gradient(circle\
-          \ at 75% 20%, rgba(51, 65, 85, 0.55) 0%, rgba(30, 41, 59, 0.85) 45%, #070b14\
-          \ 90%)';\n  return 'radial-gradient(circle at 82% 22%, rgba(251, 191, 36,\
-          \ 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';\n]]]\n"
+          \ at 75% 18%, rgba(148, 163, 184, 0.75) 0%, rgba(71, 85, 105, 0.85) 35%,\
+          \ rgba(30, 41, 59, 0.95) 70%, #0c1322 100%)';\n  return 'radial-gradient(circle\
+          \ at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%,\
+          \ #070b14 90%)';\n]]]\n"
       custom_fields:
         horizon_view:
         - position: absolute
@@ -67,34 +68,39 @@ views:
       \ 71, 0.9) 0%, rgba(251, 146, 60, 0.45) 45%, rgba(251, 146, 60, 0) 72%);\n \
       \ filter: blur(8px);\n  animation: sunPulse 5s ease-in-out infinite alternate;\n\
       \  transition: opacity 0.6s ease;\n}\n\n@keyframes sunPulse {\n  0% { transform:\
-      \ scale(0.92); }\n  100% { transform: scale(1.08); }\n}\n\n/* Nuvole Vettoriali\
-      \ Fluttuanti */\n.cloud-layer {\n  position: absolute;\n  fill: rgba(255, 255,\
-      \ 255, 0.14);\n  filter: blur(1px);\n  transition: opacity 0.6s ease, fill 0.6s\
-      \ ease;\n}\n.cloud-1 {\n  width: 420px;\n  top: 30px;\n  right: -60px;\n  animation:\
-      \ driftSlow 16s ease-in-out infinite alternate;\n}\n.cloud-2 {\n  width: 340px;\n\
-      \  top: 120px;\n  left: -50px;\n  opacity: 0.7;\n  animation: driftSlow 22s\
-      \ ease-in-out infinite alternate-reverse;\n}\n\n@keyframes driftSlow {\n  0%\
-      \ { transform: translate3d(-25px, 0, 0); }\n  100% { transform: translate3d(35px,\
-      \ -8px, 0); }\n}\n\n/* Pioggia Animata */\n.raindrop {\n  position: absolute;\n\
-      \  top: -60px;\n  width: 2px;\n  height: 45px;\n  background: linear-gradient(to\
-      \ bottom, rgba(56, 189, 248, 0), rgba(125, 211, 252, 0.65));\n  transform: rotate(15deg);\n\
-      \  animation: fall linear infinite;\n}\n@keyframes fall {\n  0% { transform:\
-      \ translate3d(40px, -60px, 0) rotate(15deg); opacity: 0; }\n  20% { opacity:\
-      \ 1; }\n  90% { opacity: 0.8; }\n  100% { transform: translate3d(-90px, 540px,\
-      \ 0) rotate(15deg); opacity: 0; }\n}\n\n/* Lampo Temporale */\n.lightning-flash\
+      \ scale(0.92); }\n  100% { transform: scale(1.08); }\n}\n\n\n/* Alone Solare\
+      \ Diffuso per Cielo Nuvoloso */\n.cloud-orb {\n  position: absolute;\n  top:\
+      \ -40px;\n  right: -40px;\n  width: 280px;\n  height: 280px;\n  border-radius:\
+      \ 50%;\n  background: radial-gradient(circle, rgba(241, 245, 249, 0.42) 0%,\
+      \ rgba(203, 213, 225, 0.2) 50%, rgba(203, 213, 225, 0) 75%);\n  filter: blur(14px);\n\
+      \  animation: sunPulse 6s ease-in-out infinite alternate;\n  pointer-events:\
+      \ none;\n}\n\n/* Nuvole Vettoriali Fluttuanti */\n.cloud-layer {\n  position:\
+      \ absolute;\n  fill: rgba(255, 255, 255, 0.14);\n  filter: blur(1px);\n  transition:\
+      \ opacity 0.6s ease, fill 0.6s ease;\n}\n.cloud-1 {\n  width: 420px;\n  top:\
+      \ 30px;\n  right: -60px;\n  animation: driftSlow 16s ease-in-out infinite alternate;\n\
+      }\n.cloud-2 {\n  width: 340px;\n  top: 120px;\n  left: -50px;\n  opacity: 0.7;\n\
+      \  animation: driftSlow 22s ease-in-out infinite alternate-reverse;\n}\n\n@keyframes\
+      \ driftSlow {\n  0% { transform: translate3d(-25px, 0, 0); }\n  100% { transform:\
+      \ translate3d(35px, -8px, 0); }\n}\n\n/* Pioggia Animata */\n.raindrop {\n \
+      \ position: absolute;\n  top: -60px;\n  width: 2px;\n  height: 45px;\n  background:\
+      \ linear-gradient(to bottom, rgba(56, 189, 248, 0), rgba(125, 211, 252, 0.65));\n\
+      \  transform: rotate(15deg);\n  animation: fall linear infinite;\n}\n@keyframes\
+      \ fall {\n  0% { transform: translate3d(40px, -60px, 0) rotate(15deg); opacity:\
+      \ 0; }\n  20% { opacity: 1; }\n  90% { opacity: 0.8; }\n  100% { transform:\
+      \ translate3d(-90px, 540px, 0) rotate(15deg); opacity: 0; }\n}\n\n/* Lampo Temporale\
+      \ */\n.lightning-flash {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width:\
+      \ 100%;\n  height: 100%;\n  background: rgba(224, 242, 254, 0.25);\n  animation:\
+      \ flashAnim 7s infinite;\n  pointer-events: none;\n}\n@keyframes flashAnim {\n\
+      \  0%, 92%, 96%, 100% { opacity: 0; }\n  93% { opacity: 0.6; }\n  95% { opacity:\
+      \ 0.2; }\n}\n\n/* Stelle Sereno Notte */\n.star {\n  position: absolute;\n \
+      \ background: #ffffff;\n  border-radius: 50%;\n  box-shadow: 0 0 8px #ffffff;\n\
+      \  animation: twinkle 3s infinite ease-in-out alternate;\n}\n@keyframes twinkle\
+      \ {\n  0% { opacity: 0.2; transform: scale(0.8); }\n  100% { opacity: 0.95;\
+      \ transform: scale(1.2); }\n}\n\n/* PROPOSTA 1: LAYOUT CANVAS */\n.layout-p1\
       \ {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height:\
-      \ 100%;\n  background: rgba(224, 242, 254, 0.25);\n  animation: flashAnim 7s\
-      \ infinite;\n  pointer-events: none;\n}\n@keyframes flashAnim {\n  0%, 92%,\
-      \ 96%, 100% { opacity: 0; }\n  93% { opacity: 0.6; }\n  95% { opacity: 0.2;\
-      \ }\n}\n\n/* Stelle Sereno Notte */\n.star {\n  position: absolute;\n  background:\
-      \ #ffffff;\n  border-radius: 50%;\n  box-shadow: 0 0 8px #ffffff;\n  animation:\
-      \ twinkle 3s infinite ease-in-out alternate;\n}\n@keyframes twinkle {\n  0%\
-      \ { opacity: 0.2; transform: scale(0.8); }\n  100% { opacity: 0.95; transform:\
-      \ scale(1.2); }\n}\n\n/* PROPOSTA 1: LAYOUT CANVAS */\n.layout-p1 {\n  position:\
-      \ absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index:\
-      \ 5;\n  padding: 28px 34px;\n  display: flex;\n  flex-direction: column;\n \
-      \ justify-content: space-between;\n  font-family: 'Outfit', sans-serif;\n}\n\
-      \n/* Top bar */\n.p1-top {\n  display: flex;\n  justify-content: space-between;\n\
+      \ 100%;\n  z-index: 5;\n  padding: 28px 34px;\n  display: flex;\n  flex-direction:\
+      \ column;\n  justify-content: space-between;\n  font-family: 'Outfit', sans-serif;\n\
+      }\n\n/* Top bar */\n.p1-top {\n  display: flex;\n  justify-content: space-between;\n\
       \  align-items: center;\n}\n.p1-date-pill {\n  background: rgba(255, 255, 255,\
       \ 0.08);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255,\
       \ 255, 0.14);\n  padding: 8px 18px;\n  border-radius: 50px;\n  font-size: 16px;\n\
@@ -162,12 +168,14 @@ views:
         \ km/h` : '';\n  \n  const isSunny = wState === 'sunny' || wState === 'partlycloudy';\n\
         \  const isRainy = wState === 'rainy' || wState === 'pouring';\n  const isStorm\
         \ = wState === 'lightning' || wState === 'lightning-rainy';\n  const isNight\
-        \ = wState === 'clear-night';\n\n  const mapMeteo = {\n    'sunny': ['Soleggiato',\
-        \ '☀️'],\n    'clear-night': ['Cielo Sereno', '\U0001F319'],\n    'partlycloudy':\
-        \ ['Poco Nuvoloso', '⛅'],\n    'cloudy': ['Nuvoloso', '☁️'],\n    'rainy':\
-        \ ['Pioggia', '\U0001F327️'],\n    'pouring': ['Pioggia Forte', '⛈️'],\n \
-        \   'lightning-rainy': ['Temporale', '⛈️']\n  };\n  const [desc, icon] = mapMeteo[wState]\
-        \ || ['Variabile', '⛅'];\n\n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
+        \ = wState === 'clear-night';\n  const isCloudy = wState === 'cloudy' || wState\
+        \ === 'fog';\n\n  const mapMeteo = {\n    'sunny': ['Soleggiato', '☀️'],\n\
+        \    'clear-night': ['Cielo Sereno', '\U0001F319'],\n    'partlycloudy': ['Poco\
+        \ Nuvoloso', '⛅'],\n    'cloudy': ['Nuvoloso', '☁️'],\n    'fog': ['Nebbia',\
+        \ '\U0001F32B️'],\n    'lightning': ['Temporale', '⛈️'],\n    'rainy': ['Pioggia',\
+        \ '\U0001F327️'],\n    'pouring': ['Pioggia Forte', '⛈️'],\n    'lightning-rainy':\
+        \ ['Temporale', '⛈️']\n  };\n  const [desc, icon] = mapMeteo[wState] || ['Variabile',\
+        \ '⛅'];\n\n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
         \  const alarmOn = (sAlarm && sAlarm.state === 'on');\n  const sAlarmTime\
         \ = states['input_datetime.sveglia_comodino_orario'];\n  const alarmRaw =\
         \ (sAlarmTime && sAlarmTime.state) ? sAlarmTime.state : '07:30:00';\n  const\
@@ -183,35 +191,35 @@ views:
         \ * 3).toFixed(1);\n      starsHtml += `<div class=\"star\" style=\"width:${size}px;\
         \ height:${size}px; left:${left}%; top:${top}%; animation-delay:${del}s;\"\
         ></div>`;\n    }\n  }\n\n  return `\n    <div class=\"weather-stage\">\n \
-        \     ${isSunny ? '<div class=\"sun-orb\"></div>' : ''}\n      ${isStorm ?\
-        \ '<div class=\"lightning-flash\"></div>' : ''}\n      ${starsHtml}\n    \
-        \  <svg class=\"cloud-layer cloud-1\" viewBox=\"0 0 200 100\">\n        <path\
-        \ d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125\
-        \ 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\" />\n      </svg>\n      <svg\
-        \ class=\"cloud-layer cloud-2\" viewBox=\"0 0 200 100\">\n        <path d=\"\
-        M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35\
-        \ 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\" />\n      </svg>\n      ${rainHtml}\n\
-        \    </div>\n\n    <div class=\"layout-p1\">\n      <div class=\"p1-top\"\
-        >\n        <div class=\"p1-date-pill\">\U0001F4C5 ${dateStr}</div>\n     \
-        \   <div class=\"p1-weather-badge\">\n          <span>${icon}</span>\n   \
-        \       <span>${desc}${windSpeed}</span>\n        </div>\n      </div>\n\n\
-        \      <div class=\"p1-center-clock\">\n        <div class=\"p1-time\">\n\
-        \          <span>${hh}</span><span class=\"p1-colon\">:</span><span class=\"\
-        p1-minutes\">${mm}</span>\n        </div>\n      </div>\n\n      <div class=\"\
-        p1-bottom-dock\">\n        <div class=\"p1-temp-group\">\n          <div class=\"\
-        p1-temp-main\">\n            <span class=\"p1-temp-val\">${isNaN(temp) ? '--'\
-        \ : temp}</span>\n            <span class=\"p1-temp-unit\">°C</span>\n   \
-        \       </div>\n          <div class=\"p1-temp-meta\">\n            <span\
-        \ class=\"p1-temp-label\">\U0001F321️ Temp. Esterna</span>\n            <div\
-        \ class=\"p1-minmax\">\n              <span style=\"color:#38bdf8;\">↓ ${tMin}°</span>\n\
-        \              <span style=\"color:#fb923c;\">↑ ${tMax}°</span>\n        \
-        \    </div>\n          </div>\n        </div>\n\n        <div class=\"alarm-pill-btn\
-        \ ${alarmOn ? '' : 'off'}\">\n          <div class=\"alarm-text-col\">\n \
-        \           <span class=\"alarm-title\">${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA\
-        \ SPENTA'}</span>\n            <span class=\"alarm-time-val\">${alarmTime}</span>\n\
-        \          </div>\n          <div class=\"alarm-status-dot\">${alarmOn ? '\U0001F514\
-        ' : '\U0001F515'}</div>\n        </div>\n      </div>\n    </div>\n  `;\n\
-        ]]]\n"
+        \     ${isSunny ? '<div class=\"sun-orb\"></div>' : ''}\n      ${isCloudy\
+        \ ? '<div class=\"cloud-orb\"></div>' : ''}\n      ${isStorm ? '<div class=\"\
+        lightning-flash\"></div>' : ''}\n      ${starsHtml}\n      <svg class=\"cloud-layer\
+        \ cloud-1\" viewBox=\"0 0 200 100\">\n        <path d=\"M 35 80 Q 15 80 15\
+        \ 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162\
+        \ 64 Q 162 80 140 80 Z\" />\n      </svg>\n      <svg class=\"cloud-layer\
+        \ cloud-2\" viewBox=\"0 0 200 100\">\n        <path d=\"M 35 80 Q 15 80 15\
+        \ 62 Q 15 46 32 44 Q 40 20 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162\
+        \ 64 Q 162 80 140 80 Z\" />\n      </svg>\n      ${rainHtml}\n    </div>\n\
+        \n    <div class=\"layout-p1\">\n      <div class=\"p1-top\">\n        <div\
+        \ class=\"p1-date-pill\">\U0001F4C5 ${dateStr}</div>\n        <div class=\"\
+        p1-weather-badge\">\n          <span>${icon}</span>\n          <span>${desc}${windSpeed}</span>\n\
+        \        </div>\n      </div>\n\n      <div class=\"p1-center-clock\">\n \
+        \       <div class=\"p1-time\">\n          <span>${hh}</span><span class=\"\
+        p1-colon\">:</span><span class=\"p1-minutes\">${mm}</span>\n        </div>\n\
+        \      </div>\n\n      <div class=\"p1-bottom-dock\">\n        <div class=\"\
+        p1-temp-group\">\n          <div class=\"p1-temp-main\">\n            <span\
+        \ class=\"p1-temp-val\">${isNaN(temp) ? '--' : temp}</span>\n            <span\
+        \ class=\"p1-temp-unit\">°C</span>\n          </div>\n          <div class=\"\
+        p1-temp-meta\">\n            <span class=\"p1-temp-label\">\U0001F321️ Temp.\
+        \ Esterna</span>\n            <div class=\"p1-minmax\">\n              <span\
+        \ style=\"color:#38bdf8;\">↓ ${tMin}°</span>\n              <span style=\"\
+        color:#fb923c;\">↑ ${tMax}°</span>\n            </div>\n          </div>\n\
+        \        </div>\n\n        <div class=\"alarm-pill-btn ${alarmOn ? '' : 'off'}\"\
+        >\n          <div class=\"alarm-text-col\">\n            <span class=\"alarm-title\"\
+        >${alarmOn ? 'SVEGLIA ATTIVA' : 'SVEGLIA SPENTA'}</span>\n            <span\
+        \ class=\"alarm-time-val\">${alarmTime}</span>\n          </div>\n       \
+        \   <div class=\"alarm-status-dot\">${alarmOn ? '\U0001F514' : '\U0001F515\
+        '}</div>\n        </div>\n      </div>\n    </div>\n  `;\n]]]\n"
 - title: Imposta Orario Sveglia
   path: orario
   type: custom:grid-layout
