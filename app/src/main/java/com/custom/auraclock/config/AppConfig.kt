@@ -162,8 +162,8 @@ class AppConfig(context: Context) {
         const val DEFAULT_LUX_NIGHT_ENTER = 2.0f
         const val DEFAULT_LUX_NIGHT_EXIT = 8.0f
         const val DEFAULT_NIGHT_PEEK_DURATION_SEC = 15
-        const val DEFAULT_NIGHT_PEEK_BRIGHTNESS = 0.12f
-        const val DEFAULT_NIGHT_BRIGHTNESS = 0.06f
+        const val DEFAULT_NIGHT_PEEK_BRIGHTNESS = 0.20f
+        const val DEFAULT_NIGHT_BRIGHTNESS = 0.10f
         const val DEFAULT_ALARM_SNOOZE_MINUTES = 10
         const val DEFAULT_ALARM_MAX_VOLUME_PCT = 85
         const val DEFAULT_SUNRISE_DURATION_MIN = 10

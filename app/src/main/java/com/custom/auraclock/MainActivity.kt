@@ -353,7 +353,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setWindowBrightness(value: Float) {
-        val clamped = value.coerceIn(0.02f, 1.0f)
+        val clamped = value.coerceIn(0.05f, 1.0f)
         val lp = window.attributes
         lp.screenBrightness = clamped
         window.attributes = lp
