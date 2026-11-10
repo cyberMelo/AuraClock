@@ -67,31 +67,49 @@ views:
       \n* {\n  box-sizing: border-box;\n  user-select: none;\n}\n\n/* STAGE METEO\
       \ ANIMATO A TUTTO SCHERMO */\n.weather-stage {\n  position: absolute;\n  top:\
       \ 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n  pointer-events:\
-      \ none;\n  overflow: hidden;\n}\n\n/* Bagliore Solare */\n.sun-orb {\n  position:\
-      \ absolute;\n  top: -40px;\n  right: -40px;\n  width: 260px;\n  height: 260px;\n\
+      \ none;\n  overflow: hidden;\n}\n\n/* Bagliore Solare Pulsante */\n.sun-orb {\n  position:\
+      \ absolute;\n  top: -50px;\n  right: -50px;\n  width: 290px;\n  height: 290px;\n\
       \  border-radius: 50%;\n  background: radial-gradient(circle, rgba(253, 224,\
-      \ 71, 0.9) 0%, rgba(251, 146, 60, 0.45) 45%, rgba(251, 146, 60, 0) 72%);\n \
-      \ filter: blur(8px);\n  animation: sunPulse 5s ease-in-out infinite alternate;\n\
+      \ 71, 0.95) 0%, rgba(251, 146, 60, 0.55) 45%, rgba(251, 146, 60, 0) 75%);\n\
+      \  filter: blur(10px);\n  animation: sunPulse 3.5s ease-in-out infinite alternate;\n\
       \  transition: opacity 0.6s ease;\n}\n\n@keyframes sunPulse {\n  0% { transform:\
-      \ scale(0.92); }\n  100% { transform: scale(1.08); }\n}\n\n\n/* Alone Solare\
-      \ Diffuso per Cielo Nuvoloso */\n.cloud-orb {\n  position: absolute;\n  top:\
-      \ -40px;\n  right: -40px;\n  width: 280px;\n  height: 280px;\n  border-radius:\
-      \ 50%;\n  background: radial-gradient(circle, rgba(241, 245, 249, 0.42) 0%,\
-      \ rgba(203, 213, 225, 0.2) 50%, rgba(203, 213, 225, 0) 75%);\n  filter: blur(14px);\n\
-      \  animation: sunPulse 6s ease-in-out infinite alternate;\n  pointer-events:\
+      \ scale(0.88); opacity: 0.85; }\n  100% { transform: scale(1.15); opacity: 1; }\n}\n\n\
+/* Fascio Luminoso Conico Rotante */\n.sun-beam {\n  position: absolute;\n\
+      \  top: -140px;\n  right: -140px;\n  width: 520px;\n  height: 520px;\n  border-radius: 50%;\n\
+      \  background: conic-gradient(from 180deg at 75% 25%, transparent 0deg, rgba(254, 240, 138, 0.16) 35deg, transparent 70deg, rgba(251, 146, 60, 0.12) 110deg, transparent 150deg, rgba(254, 240, 138, 0.15) 195deg, transparent 240deg);\n\
+      \  animation: rotateBeam 32s linear infinite;\n  filter: blur(14px);\n  pointer-events: none;\n}\n\
+@keyframes rotateBeam {\n  0% { transform: rotate(0deg); }\n  100% { transform: rotate(360deg); }\n}\n\n\
+/* Granelli di Pulviscolo Solare Fluttuanti */\n.sun-mote {\n  position: absolute;\n\
+      \  background: #fef08a;\n  border-radius: 50%;\n  box-shadow: 0 0 6px #facc15;\n\
+      \  animation: floatMote linear infinite;\n  pointer-events: none;\n}\n\
+@keyframes floatMote {\n  0% { transform: translate3d(0, 30px, 0); opacity: 0; }\n\
+      \  25% { opacity: 0.9; }\n  75% { opacity: 0.75; }\n  100% { transform: translate3d(40px, -160px, 0); opacity: 0; }\n}\n\n\
+/* Alone Solare Diffuso per Cielo Nuvoloso */\n.cloud-orb {\n  position: absolute;\n\
+      \  top: -40px;\n  right: -40px;\n  width: 290px;\n  height: 290px;\n  border-radius:\
+      \ 50%;\n  background: radial-gradient(circle, rgba(241, 245, 249, 0.5) 0%,\
+      \ rgba(203, 213, 225, 0.25) 50%, rgba(203, 213, 225, 0) 75%);\n  filter: blur(14px);\n\
+      \  animation: sunPulse 4s ease-in-out infinite alternate;\n  pointer-events:\
       \ none;\n}\n\n/* Alone Lunare Notturno */\n.moon-orb {\n  position: absolute;\n\
-      \  top: -40px;\n  right: -40px;\n  width: 250px;\n  height: 250px;\n  border-radius:\
-      \ 50%;\n  background: radial-gradient(circle, rgba(199, 210, 254, 0.45) 0%,\
-      \ rgba(129, 140, 248, 0.2) 45%, rgba(99, 102, 241, 0) 72%);\n  filter: blur(10px);\n\
-      \  animation: sunPulse 6s ease-in-out infinite alternate;\n  pointer-events:\
-      \ none;\n}\n\n/* Nuvole Vettoriali Fluttuanti */\n.cloud-layer {\n  position:\
-      \ absolute;\n  fill: rgba(255, 255, 255, 0.14);\n  filter: blur(1px);\n  transition:\
-      \ opacity 0.6s ease, fill 0.6s ease;\n}\n.cloud-1 {\n  width: 420px;\n  top:\
-      \ 30px;\n  right: -60px;\n  animation: driftSlow 16s ease-in-out infinite alternate;\n\
-      }\n.cloud-2 {\n  width: 340px;\n  top: 120px;\n  left: -50px;\n  opacity: 0.7;\n\
-      \  animation: driftSlow 22s ease-in-out infinite alternate-reverse;\n}\n\n@keyframes\
-      \ driftSlow {\n  0% { transform: translate3d(-25px, 0, 0); }\n  100% { transform:\
-      \ translate3d(35px, -8px, 0); }\n}\n\n/* Pioggia Animata */\n.raindrop {\n \
+      \  top: -40px;\n  right: -40px;\n  width: 260px;\n  height: 260px;\n  border-radius:\
+      \ 50%;\n  background: radial-gradient(circle, rgba(199, 210, 254, 0.55) 0%,\
+      \ rgba(129, 140, 248, 0.28) 45%, rgba(99, 102, 241, 0) 74%);\n  filter: blur(10px);\n\
+      \  animation: moonPulse 4s ease-in-out infinite alternate;\n  pointer-events:\
+      \ none;\n}\n\n@keyframes moonPulse {\n  0% { transform: scale(0.90); opacity: 0.75; }\n\
+      \  100% { transform: scale(1.12); opacity: 1; }\n}\n\n\
+/* Nuvole Vettoriali Fluttuanti Dinamiche */\n.cloud-layer {\n  position:\
+      \ absolute;\n  fill: rgba(255, 255, 255, 0.22);\n  filter: blur(1px);\n  transition:\
+      \ opacity 0.6s ease, fill 0.6s ease;\n}\n.cloud-1 {\n  width: 440px;\n  top:\
+      \ 25px;\n  right: -70px;\n  animation: driftOne 8.5s ease-in-out infinite alternate;\n\
+      }\n.cloud-2 {\n  width: 360px;\n  top: 110px;\n  left: -60px;\n  opacity: 0.85;\n\
+      \  animation: driftTwo 11s ease-in-out infinite alternate-reverse;\n}\n\
+.cloud-3 {\n  width: 240px;\n  top: 15px;\n  left: 220px;\n  opacity: 0.5;\n\
+      \  animation: driftThree 7s ease-in-out infinite alternate;\n}\n\n\
+@keyframes driftOne {\n  0% { transform: translate3d(-50px, 0, 0) scale(0.96); }\n\
+      \  100% { transform: translate3d(60px, -14px, 0) scale(1.04); }\n}\n\
+@keyframes driftTwo {\n  0% { transform: translate3d(-40px, -8px, 0) scale(1.02); }\n\
+      \  100% { transform: translate3d(65px, 12px, 0) scale(0.96); }\n}\n\
+@keyframes driftThree {\n  0% { transform: translate3d(40px, 0, 0); }\n\
+      \  100% { transform: translate3d(-50px, -10px, 0); }\n}\n\n/* Pioggia Animata */\n.raindrop {\n \
       \ position: absolute;\n  top: -60px;\n  width: 2px;\n  height: 45px;\n  background:\
       \ linear-gradient(to bottom, rgba(56, 189, 248, 0), rgba(125, 211, 252, 0.65));\n\
       \  transform: rotate(15deg);\n  animation: fall linear infinite;\n}\n@keyframes\
@@ -104,9 +122,9 @@ views:
       \  0%, 92%, 96%, 100% { opacity: 0; }\n  93% { opacity: 0.6; }\n  95% { opacity:\
       \ 0.2; }\n}\n\n/* Stelle Sereno Notte */\n.star {\n  position: absolute;\n \
       \ background: #ffffff;\n  border-radius: 50%;\n  box-shadow: 0 0 8px #ffffff;\n\
-      \  animation: twinkle 3s infinite ease-in-out alternate;\n}\n@keyframes twinkle\
-      \ {\n  0% { opacity: 0.2; transform: scale(0.8); }\n  100% { opacity: 0.95;\
-      \ transform: scale(1.2); }\n}\n\n/* PROPOSTA 1: LAYOUT CANVAS */\n.layout-p1\
+      \  animation: twinkle 1.8s infinite ease-in-out alternate;\n}\n@keyframes twinkle\
+      \ {\n  0% { opacity: 0.15; transform: scale(0.65); }\n  100% { opacity: 1;\
+      \ transform: scale(1.35); }\n}\n\n/* PROPOSTA 1: LAYOUT CANVAS */\n.layout-p1\
       \ {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height:\
       \ 100%;\n  z-index: 5;\n  padding: 28px 34px;\n  display: flex;\n  flex-direction:\
       \ column;\n  justify-content: space-between;\n  font-family: 'Outfit', sans-serif;\n\
@@ -124,11 +142,11 @@ views:
       \  font-weight: 800;\n  line-height: 0.9;\n  letter-spacing: -6px;\n  color:\
       \ #ffffff;\n  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.9), 0 2px 6px rgba(0,\
       \ 0, 0, 0.95);\n  display: inline-flex;\n  align-items: baseline;\n}\n.p1-colon\
-      \ {\n  color: #38bdf8;\n  margin: 0 4px;\n  animation: softBlink 2s infinite\
+      \ {\n  color: #38bdf8;\n  margin: 0 4px;\n  animation: softBlink 1s infinite\
       \ ease-in-out;\n  text-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);\n}\n.p1-minutes\
       \ {\n  color: #ffffff;\n  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.9), 0 2px\
       \ 6px rgba(0, 0, 0, 0.95);\n}\n\n@keyframes softBlink {\n  0%, 100% { opacity:\
-      \ 1; }\n  50% { opacity: 0.3; }\n}\n\n/* Basso: Dock Satinata */\n.p1-bottom-dock\
+      \ 1; transform: scale(1); }\n  50% { opacity: 0.25; transform: scale(0.92); }\n}\n\n/* Basso: Dock Satinata */\n.p1-bottom-dock\
       \ {\n  height: 108px;\n  background: rgba(15, 23, 42, 0.62);\n  backdrop-filter:\
       \ blur(20px);\n  border: 1px solid rgba(255, 255, 255, 0.14);\n  border-radius:\
       \ 30px;\n  padding: 12px 14px 12px 28px;\n  display: flex;\n  align-items: center;\n\
@@ -248,14 +266,22 @@ views:
         width:${size}px; height:${size}px; left:${left}%; animation-duration:${dur}s;\
         \ animation-delay:${del}s; opacity:${op};\"></div>`;\n    }\n  }\n\n  let\
         \ fogHtml = '';\n  if (isFog) {\n    fogHtml = '<div class=\"fog-layer fog-1\"\
-        ></div><div class=\"fog-layer fog-2\"></div>';\n  }\n\n  return `\n    <div\
-        \ class=\"weather-stage\">\n      ${isSunny ? '<div class=\"sun-orb\"></div>'\
+        ></div><div class=\"fog-layer fog-2\"></div>';\n  }\n\n  let motesHtml = '';\n\
+        \  if (isSunny) {\n    for (let i = 0; i < 8; i++) {\n      const left = Math.floor(62 + Math.random() * 34);\n\
+        \      const top = Math.floor(8 + Math.random() * 45);\n      const size = (2.5 + Math.random() * 3.5).toFixed(1);\n\
+        \      const dur = (3.0 + Math.random() * 2.5).toFixed(1);\n      const del = (Math.random() * 2.5).toFixed(1);\n\
+        \      motesHtml += `<div class=\"sun-mote\" style=\"width:${size}px; height:${size}px; left:${left}%; top:${top}%; animation-duration:${dur}s; animation-delay:${del}s;\"></div>`;\n\
+        \    }\n  }\n\n  return `\n    <div\
+        \ class=\"weather-stage\">\n      ${isSunny ? '<div class=\"sun-orb\"></div><div class=\"sun-beam\"></div>' + motesHtml\
         \ : ''}\n      ${showMoon ? '<div class=\"moon-orb\"></div>' : ''}\n      ${isCloudy ? '<div class=\"cloud-orb\"></div>' : ''}\n    \
         \  ${isStorm ? '<div class=\"lightning-flash\"></div>' : ''}\n      ${starsHtml}\n\
         \      ${fogHtml}\n      <svg class=\"cloud-layer cloud-1\" viewBox=\"0 0\
         \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
         \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
         \ />\n      </svg>\n      <svg class=\"cloud-layer cloud-2\" viewBox=\"0 0\
+        \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
+        \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
+        \ />\n      </svg>\n      <svg class=\"cloud-layer cloud-3\" viewBox=\"0 0\
         \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
         \ 68 20 Q 98 20 108 42 Q 125 35 142 45 Q 162 46 162 64 Q 162 80 140 80 Z\"\
         \ />\n      </svg>\n      ${rainHtml}\n      ${snowHtml}\n    <img src=\"\
