@@ -34,8 +34,8 @@ class LightSensorController(
 
     fun start() {
         if (lightSensor != null) {
-            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL)
-            Log.i(TAG, "Sensore luce registrato con successo")
+            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_UI)
+            Log.i(TAG, "Sensore luce registrato con successo (DELAY_UI)")
         } else {
             Log.w(TAG, "Sensore luce (TYPE_LIGHT) non rilevato sul dispositivo!")
         }
@@ -63,13 +63,13 @@ class LightSensorController(
             if (lux < enterThreshold) {
                 if (enterNightRunnable == null) {
                     enterNightRunnable = Runnable {
-                        Log.i(TAG, "Trigger Notte: lux < $enterThreshold per 5000ms -> Passo a NIGHT_MODE")
+                        Log.i(TAG, "Trigger Notte: lux < $enterThreshold per 3500ms -> Passo a NIGHT_MODE")
                         currentMode = Mode.NIGHT_MODE
                         onModeChanged?.invoke(Mode.NIGHT_MODE)
-                        onBrightnessChanged?.invoke(0.01f)
+                        onBrightnessChanged?.invoke(appConfig.nightBrightness)
                         enterNightRunnable = null
                     }
-                    handler.postDelayed(enterNightRunnable!!, 5000L)
+                    handler.postDelayed(enterNightRunnable!!, 3500L)
                 }
             } else {
                 cancelEnterNightTimer()
@@ -80,13 +80,13 @@ class LightSensorController(
             if (lux > exitThreshold) {
                 if (exitNightRunnable == null) {
                     exitNightRunnable = Runnable {
-                        Log.i(TAG, "Trigger Giorno: lux > $exitThreshold per 8000ms -> Passo a DAY_MODE")
+                        Log.i(TAG, "Trigger Giorno: lux > $exitThreshold per 1200ms -> Passo a DAY_MODE")
                         currentMode = Mode.DAY_MODE
                         onModeChanged?.invoke(Mode.DAY_MODE)
                         onBrightnessChanged?.invoke(calculateDayBrightness(currentLux))
                         exitNightRunnable = null
                     }
-                    handler.postDelayed(exitNightRunnable!!, 8000L)
+                    handler.postDelayed(exitNightRunnable!!, 1200L)
                 }
             } else {
                 cancelExitNightTimer()

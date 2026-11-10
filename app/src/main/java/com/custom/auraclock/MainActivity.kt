@@ -329,12 +329,12 @@ class MainActivity : AppCompatActivity() {
             binding.webViewLivingHorizon.visibility = View.INVISIBLE
             setWindowBrightness(appConfig.nightBrightness)
         } else {
-            binding.layerNightOverlay.animate().alpha(0f).setDuration(500).withEndAction {
+            if (isHaReachable) {
+                binding.webViewLivingHorizon.visibility = View.VISIBLE
+            }
+            binding.layerNightOverlay.animate().alpha(0f).setDuration(400).withEndAction {
                 binding.layerNightOverlay.visibility = View.GONE
                 removeWarmFilterFromWebView()
-                if (isHaReachable) {
-                    binding.webViewLivingHorizon.visibility = View.VISIBLE
-                }
             }.start()
         }
     }
@@ -393,7 +393,7 @@ class MainActivity : AppCompatActivity() {
             removeWarmFilterFromWebView()
             binding.webViewLivingHorizon.visibility = View.INVISIBLE
             binding.layerNightOverlay.visibility = View.VISIBLE
-            setWindowBrightness(0.01f)
+            setWindowBrightness(appConfig.nightBrightness)
         }
     }
 

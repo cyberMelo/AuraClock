@@ -10,6 +10,7 @@ views:
   - type: custom:button-card
     entity: weather.casa
     triggers_update:
+    - sun.sun
     - sensor.time
     - sensor.time_2
     - sensor.temperatura_esterna
@@ -37,22 +38,21 @@ views:
       - position: relative
       - overflow: hidden
       - zoom: '0.666667'
-      - background: "[[[\n  const w = entity.state;\n  if (w === 'rainy' || w ===\
-          \ 'pouring')\n    return 'radial-gradient(circle at 50% 0%, rgba(30, 64,\
-          \ 175, 0.45) 0%, rgba(15, 23, 42, 0.85) 60%, #050811 100%)';\n  if (w ===\
-          \ 'lightning-rainy' || w === 'lightning')\n    return 'radial-gradient(circle\
-          \ at 70% 15%, rgba(124, 58, 237, 0.32) 0%, rgba(17, 24, 39, 0.9) 55%, #04060c\
-          \ 100%)';\n  if (w === 'clear-night')\n    return 'radial-gradient(circle\
-          \ at 80% 20%, rgba(99, 102, 241, 0.25) 0%, rgba(15, 23, 42, 0.6) 50%, #03050a\
-          \ 100%)';\n  if (w === 'snowy' || w === 'snowy-rainy')\n    return 'radial-gradient(circle\
-          \ at 60% 15%, rgba(186, 230, 253, 0.65) 0%, rgba(125, 211, 252, 0.35) 30%,\
-          \ rgba(30, 41, 59, 0.9) 70%, #090e1a 100%)';\n  if (w === 'fog')\n    return\
-          \ 'radial-gradient(ellipse at 50% 45%, rgba(148, 163, 184, 0.65) 0%, rgba(100,\
-          \ 116, 139, 0.75) 45%, rgba(30, 41, 59, 0.95) 80%, #0c1322 100%)';\n  if\
-          \ (w === 'cloudy')\n    return 'radial-gradient(circle at 75% 18%, rgba(148,\
-          \ 163, 184, 0.75) 0%, rgba(71, 85, 105, 0.85) 35%, rgba(30, 41, 59, 0.95)\
-          \ 70%, #0c1322 100%)';\n  return 'radial-gradient(circle at 82% 22%, rgba(251,\
-          \ 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';\n]]]"
+      - background: "[[[\n  const w = entity.state;\n  const sun = states['sun.sun'];\n\
+          \  const isSunBelow = sun ? sun.state === 'below_horizon' : false;\n  const\
+          \ isNight = (w === 'clear-night') || isSunBelow || (!sun && (new Date().getHours() >= 21 || new Date().getHours() < 6));\n\
+          \  if (w === 'rainy' || w === 'pouring')\n    return 'radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.45) 0%, rgba(15, 23, 42, 0.85) 60%, #050811 100%)';\n\
+          \  if (w === 'lightning-rainy' || w === 'lightning')\n    return 'radial-gradient(circle at 70% 15%, rgba(124, 58, 237, 0.32) 0%, rgba(17, 24, 39, 0.9) 55%, #04060c 100%)';\n\
+          \  if (isNight && (w === 'sunny' || w === 'clear' || w === 'clear-night'))\n\
+          \    return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.28) 0%, rgba(15, 23, 42, 0.65) 50%, #03050a 100%)';\n\
+          \  if (w === 'snowy' || w === 'snowy-rainy')\n    return 'radial-gradient(circle at 60% 15%, rgba(186, 230, 253, 0.65) 0%, rgba(125, 211, 252, 0.35) 30%, rgba(30, 41, 59, 0.9) 70%, #090e1a 100%)';\n\
+          \  if (w === 'fog')\n    return 'radial-gradient(ellipse at 50% 45%, rgba(148, 163, 184, 0.65) 0%, rgba(100, 116, 139, 0.75) 45%, rgba(30, 41, 59, 0.95) 80%, #0c1322 100%)';\n\
+          \  if (w === 'cloudy')\n    return 'radial-gradient(circle at 75% 18%, rgba(148, 163, 184, 0.75) 0%, rgba(71, 85, 105, 0.85) 35%, rgba(30, 41, 59, 0.95) 70%, #0c1322 100%)';\n\
+          \  if (w === 'partlycloudy') {\n    if (isNight) return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.22) 0%, rgba(30, 41, 59, 0.7) 50%, #03050a 100%)';\n\
+          \    return 'radial-gradient(circle at 80% 15%, rgba(251, 191, 36, 0.22) 0%, rgba(56, 189, 248, 0.15) 30%, rgba(15, 23, 42, 0.65) 60%, #050813 100%)';\n\
+          \  }\n  if (isNight)\n    return 'radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.28) 0%, rgba(15, 23, 42, 0.65) 50%, #03050a 100%)';\n\
+          \  return 'radial-gradient(circle at 82% 22%, rgba(251, 191, 36, 0.35) 0%, rgba(56, 189, 248, 0.18) 45%, #070b14 90%)';\n\
+          ]]]"
       custom_fields:
         horizon_view:
         - position: absolute
@@ -78,6 +78,11 @@ views:
       \ -40px;\n  right: -40px;\n  width: 280px;\n  height: 280px;\n  border-radius:\
       \ 50%;\n  background: radial-gradient(circle, rgba(241, 245, 249, 0.42) 0%,\
       \ rgba(203, 213, 225, 0.2) 50%, rgba(203, 213, 225, 0) 75%);\n  filter: blur(14px);\n\
+      \  animation: sunPulse 6s ease-in-out infinite alternate;\n  pointer-events:\
+      \ none;\n}\n\n/* Alone Lunare Notturno */\n.moon-orb {\n  position: absolute;\n\
+      \  top: -40px;\n  right: -40px;\n  width: 250px;\n  height: 250px;\n  border-radius:\
+      \ 50%;\n  background: radial-gradient(circle, rgba(199, 210, 254, 0.45) 0%,\
+      \ rgba(129, 140, 248, 0.2) 45%, rgba(99, 102, 241, 0) 72%);\n  filter: blur(10px);\n\
       \  animation: sunPulse 6s ease-in-out infinite alternate;\n  pointer-events:\
       \ none;\n}\n\n/* Nuvole Vettoriali Fluttuanti */\n.cloud-layer {\n  position:\
       \ absolute;\n  fill: rgba(255, 255, 255, 0.14);\n  filter: blur(1px);\n  transition:\
@@ -186,20 +191,40 @@ views:
         \ '--';\n  const tMax = (minMaxAttrs.temp_max !== undefined && minMaxAttrs.temp_max\
         \ !== null) ? minMaxAttrs.temp_max : '--';\n\n  const wState = entity.state;\n\
         \  const windSpeed = entity.attributes.wind_speed ? ` • Vento ${entity.attributes.wind_speed}\
-        \ km/h` : '';\n  \n  const isSunny = wState === 'sunny' || wState === 'partlycloudy';\n\
-        \  const isRainy = wState === 'rainy' || wState === 'pouring';\n  const isStorm\
-        \ = wState === 'lightning' || wState === 'lightning-rainy';\n  const isNight\
-        \ = wState === 'clear-night';\n  const isCloudy = wState === 'cloudy';\n \
-        \ const isFog = wState === 'fog';\n  const isSnowy = wState === 'snowy' ||\
-        \ wState === 'snowy-rainy';\n  \n  const mapMeteo = {\n    'sunny': ['Soleggiato',\
-        \ '☀️'],\n    'clear-night': ['Cielo Sereno', '\U0001F319'],\n    'partlycloudy':\
-        \ ['Poco Nuvoloso', '⛅'],\n    'cloudy': ['Nuvoloso', '☁️'],\n    'fog': ['Nebbia',\
-        \ '\U0001F32B️'],\n    'snowy': ['Neve', '❄️'],\n    'snowy-rainy': ['Nevischio',\
-        \ '\U0001F328️'],\n    'lightning': ['Temporale', '⛈️'],\n    'rainy': ['Pioggia',\
-        \ '\U0001F327️'],\n    'pouring': ['Pioggia Forte', '⛈️'],\n    'lightning-rainy':\
-        \ ['Temporale', '⛈️'],\n    'windy': ['Ventoso', '\U0001F4A8'],\n    'windy-variant':\
-        \ ['Ventoso', '\U0001F4A8']\n  };\n  const [desc, icon] = mapMeteo[wState]\
-        \ || ['Variabile', '⛅'];\n\n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
+        \ km/h` : '';\n\
+        \  \n\
+        \  const sSun = states['sun.sun'];\n\
+        \  const isSunBelow = sSun ? sSun.state === 'below_horizon' : false;\n\
+        \  const isNight = (wState === 'clear-night') || isSunBelow || (!sSun && (now.getHours() >= 21 || now.getHours() < 6));\n\
+        \  \n\
+        \  const isRainy = wState === 'rainy' || wState === 'pouring';\n\
+        \  const isStorm = wState === 'lightning' || wState === 'lightning-rainy';\n\
+        \  const isCloudy = wState === 'cloudy';\n\
+        \  const isFog = wState === 'fog';\n\
+        \  const isSnowy = wState === 'snowy' || wState === 'snowy-rainy';\n\
+        \  const isPartlyCloudy = wState === 'partlycloudy';\n\
+        \  \n\
+        \  const isSunny = !isNight && (wState === 'sunny' || isPartlyCloudy);\n\
+        \  const showMoon = isNight && !isRainy && !isStorm && !isFog;\n\
+        \  const showStars = isNight && !isRainy && !isStorm && !isFog;\n\
+        \  \n\
+        \  const mapMeteo = {\n\
+        \    'sunny': isNight ? ['Cielo Sereno', '\U0001F319'] : ['Soleggiato', '☀️'],\n\
+        \    'clear-night': ['Cielo Sereno', '\U0001F319'],\n\
+        \    'partlycloudy': isNight ? ['Poco Nuvoloso', '\U0001F319'] : ['Poco Nuvoloso', '⛅'],\n\
+        \    'cloudy': ['Nuvoloso', '☁️'],\n\
+        \    'fog': ['Nebbia', '\U0001F32B️'],\n\
+        \    'snowy': ['Neve', '❄️'],\n\
+        \    'snowy-rainy': ['Nevischio', '\U0001F328️'],\n\
+        \    'lightning': ['Temporale', '⛈️'],\n\
+        \    'rainy': ['Pioggia', '\U0001F327️'],\n\
+        \    'pouring': ['Pioggia Forte', '⛈️'],\n\
+        \    'lightning-rainy': ['Temporale', '⛈️'],\n\
+        \    'windy': ['Ventoso', '\U0001F4A8'],\n\
+        \    'windy-variant': ['Ventoso', '\U0001F4A8']\n\
+        \  };\n\
+        \  const [desc, icon] = mapMeteo[wState] || (isNight ? ['Sereno Notte', '\U0001F319'] : ['Variabile', '⛅']);\n\
+        \n  const sAlarm = states['input_boolean.sveglia_comodino_attiva'];\n\
         \  const alarmOn = (sAlarm && sAlarm.state === 'on');\n  const sAlarmTime\
         \ = states['input_datetime.sveglia_comodino_orario'];\n  const alarmRaw =\
         \ (sAlarmTime && sAlarmTime.state) ? sAlarmTime.state : '07:30:00';\n  const\
@@ -208,7 +233,7 @@ views:
         \ * 105);\n      const dur = (0.6 + Math.random() * 0.4).toFixed(2);\n   \
         \   const del = (Math.random() * 1.5).toFixed(2);\n      rainHtml += `<div\
         \ class=\"raindrop\" style=\"left:${left}%; animation-duration:${dur}s; animation-delay:${del}s;\"\
-        ></div>`;\n    }\n  }\n\n  let starsHtml = '';\n  if (isNight) {\n    for\
+        ></div>`;\n    }\n  }\n\n  let starsHtml = '';\n  if (showStars) {\n    for\
         \ (let i = 0; i < 24; i++) {\n      const left = Math.floor(Math.random()\
         \ * 100);\n      const top = Math.floor(Math.random() * 65);\n      const\
         \ size = (2 + Math.random() * 2).toFixed(1);\n      const del = (Math.random()\
@@ -225,7 +250,7 @@ views:
         \ fogHtml = '';\n  if (isFog) {\n    fogHtml = '<div class=\"fog-layer fog-1\"\
         ></div><div class=\"fog-layer fog-2\"></div>';\n  }\n\n  return `\n    <div\
         \ class=\"weather-stage\">\n      ${isSunny ? '<div class=\"sun-orb\"></div>'\
-        \ : ''}\n      ${isCloudy ? '<div class=\"cloud-orb\"></div>' : ''}\n    \
+        \ : ''}\n      ${showMoon ? '<div class=\"moon-orb\"></div>' : ''}\n      ${isCloudy ? '<div class=\"cloud-orb\"></div>' : ''}\n    \
         \  ${isStorm ? '<div class=\"lightning-flash\"></div>' : ''}\n      ${starsHtml}\n\
         \      ${fogHtml}\n      <svg class=\"cloud-layer cloud-1\" viewBox=\"0 0\
         \ 200 100\">\n        <path d=\"M 35 80 Q 15 80 15 62 Q 15 46 32 44 Q 40 20\
