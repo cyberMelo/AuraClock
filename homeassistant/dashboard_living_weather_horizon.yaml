@@ -13,6 +13,7 @@ views:
     - sun.sun
     - sensor.time
     - sensor.time_2
+    - sensor.casa_rotondo_salotto_esterno_temperature
     - sensor.temperatura_esterna
     - sensor.meteo_comodino_minmax
     - input_boolean.sveglia_comodino_attiva
@@ -200,9 +201,9 @@ views:
         \  const mesi = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];\n\
         \  const dateStr = `${giorni[now.getDay()]} ${now.getDate()} ${mesi[now.getMonth()]}`;\n\
         \  \n  const hh = String(now.getHours()).padStart(2, '0');\n  const mm = String(now.getMinutes()).padStart(2,\
-        \ '0');\n\n  const sTemp = states['sensor.temperatura_esterna'];\n  const\
-        \ tempVal = (sTemp && sTemp.state) ? sTemp.state : (entity.attributes.temperature\
-        \ || 0);\n  const temp = parseFloat(tempVal).toFixed(1);\n\n  const sMinMax\
+        \ '0');\n\n  const sTemp = states['sensor.casa_rotondo_salotto_esterno_temperature'] || states['sensor.temperatura_esterna'];\n\
+        \  const tempVal = (sTemp && sTemp.state !== undefined && sTemp.state !== 'unavailable' && sTemp.state !== 'unknown') ? sTemp.state : (entity.attributes.temperature || 0);\n\
+        \  const temp = parseFloat(tempVal).toFixed(1);\n\n  const sMinMax\
         \ = states['sensor.meteo_comodino_minmax'];\n  const minMaxAttrs = (sMinMax\
         \ && sMinMax.attributes) ? sMinMax.attributes : {};\n  const tMin = (minMaxAttrs.temp_min\
         \ !== undefined && minMaxAttrs.temp_min !== null) ? minMaxAttrs.temp_min :\

@@ -29,7 +29,10 @@ class AppConfig(context: Context) {
         set(value) = prefs.edit().putString(KEY_ENTITY_ALARM_TIME, value).apply()
 
     var entityExtTemp: String
-        get() = prefs.getString(KEY_ENTITY_EXT_TEMP, DEFAULT_ENTITY_EXT_TEMP) ?: DEFAULT_ENTITY_EXT_TEMP
+        get() {
+            val v = prefs.getString(KEY_ENTITY_EXT_TEMP, DEFAULT_ENTITY_EXT_TEMP) ?: DEFAULT_ENTITY_EXT_TEMP
+            return if (v == "sensor.temperatura_esterna") DEFAULT_ENTITY_EXT_TEMP else v
+        }
         set(value) = prefs.edit().putString(KEY_ENTITY_EXT_TEMP, value).apply()
 
     var entityWeather: String
@@ -156,7 +159,7 @@ class AppConfig(context: Context) {
         const val DEFAULT_HA_DASHBOARD_PATH = "/lovelace-comodino/0?kiosk"
         const val DEFAULT_ENTITY_ALARM_ENABLED = "input_boolean.sveglia_comodino_attiva"
         const val DEFAULT_ENTITY_ALARM_TIME = "input_datetime.sveglia_comodino_orario"
-        const val DEFAULT_ENTITY_EXT_TEMP = "sensor.temperatura_esterna"
+        const val DEFAULT_ENTITY_EXT_TEMP = "sensor.casa_rotondo_salotto_esterno_temperature"
         const val DEFAULT_ENTITY_WEATHER = "weather.casa"
         const val DEFAULT_ENTITY_BEDSIDE_LIGHT = "light.luce_comodino"
         const val DEFAULT_LUX_NIGHT_ENTER = 2.0f
