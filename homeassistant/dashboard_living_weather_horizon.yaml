@@ -520,6 +520,47 @@ views:
         custom_fields:
           horizon_view: |
             [[[
+              // --- AuraClock Native Horizontal Swipe Navigation ---
+              if (!window.__auraSwipeAttached) {
+                window.__auraSwipeAttached = true;
+                let sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', (e) => {
+                  if (e.touches && e.touches.length === 1) {
+                    sX = e.touches[0].clientX;
+                    sY = e.touches[0].clientY;
+                    sT = Date.now();
+                  }
+                }, { capture: true, passive: true });
+                
+                window.addEventListener('touchend', (e) => {
+                  if (e.changedTouches && e.changedTouches.length === 1) {
+                    const dX = e.changedTouches[0].clientX - sX;
+                    const dY = e.changedTouches[0].clientY - sY;
+                    const dt = Date.now() - sT;
+                    if (Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      const p = window.location.pathname;
+                      const nav = (dst) => {
+                        if (window.history && window.history.pushState) {
+                          window.history.pushState(null, '', dst);
+                        }
+                        window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
+                      };
+                      if (dX < -60) {
+                        // Swiped LEFT: Clock -> Music (Music is to the right of Clock)
+                        if (!p.includes('/musica') && !p.includes('/orario')) {
+                          nav('/lovelace-comodino/musica');
+                        }
+                      } else if (dX > 60) {
+                        // Swiped RIGHT: Music -> Clock (Clock is to the left of Music)
+                        if (p.includes('/musica')) {
+                          nav('/lovelace-comodino/0');
+                        }
+                      }
+                    }
+                  }
+                }, { capture: true, passive: true });
+              }
+            
               const now = new Date();
               const giorni = ['DOMENICA','LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO'];
               const mesi = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
@@ -1209,6 +1250,47 @@ views:
         custom_fields:
           music_view: |
             [[[
+              // --- AuraClock Native Horizontal Swipe Navigation ---
+              if (!window.__auraSwipeAttached) {
+                window.__auraSwipeAttached = true;
+                let sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', (e) => {
+                  if (e.touches && e.touches.length === 1) {
+                    sX = e.touches[0].clientX;
+                    sY = e.touches[0].clientY;
+                    sT = Date.now();
+                  }
+                }, { capture: true, passive: true });
+                
+                window.addEventListener('touchend', (e) => {
+                  if (e.changedTouches && e.changedTouches.length === 1) {
+                    const dX = e.changedTouches[0].clientX - sX;
+                    const dY = e.changedTouches[0].clientY - sY;
+                    const dt = Date.now() - sT;
+                    if (Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      const p = window.location.pathname;
+                      const nav = (dst) => {
+                        if (window.history && window.history.pushState) {
+                          window.history.pushState(null, '', dst);
+                        }
+                        window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
+                      };
+                      if (dX < -60) {
+                        // Swiped LEFT: Clock -> Music (Music is to the right of Clock)
+                        if (!p.includes('/musica') && !p.includes('/orario')) {
+                          nav('/lovelace-comodino/musica');
+                        }
+                      } else if (dX > 60) {
+                        // Swiped RIGHT: Music -> Clock (Clock is to the left of Music)
+                        if (p.includes('/musica')) {
+                          nav('/lovelace-comodino/0');
+                        }
+                      }
+                    }
+                  }
+                }, { capture: true, passive: true });
+              }
+            
               window.hass = hass;
               const clockPlayer = states['media_player.aura_clock_comodino'];
               const spotifyPlayer = states['media_player.spotify_carmelo_rotondo'];
