@@ -43,21 +43,24 @@ script:
 # 4. Sensore Min/Max Giornaliero compatibile con weather.get_forecasts (HA 2024+)
 template:
   - trigger:
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "/30"
-      - platform: homeassistant
+      - trigger: homeassistant
         event: start
+      - trigger: event
+        event_type: event_template_reloaded
     action:
-      - service: weather.get_forecasts
+      - action: weather.get_forecasts
         data:
           type: daily
         target:
-          entity_id: weather.casa
+          entity_id: weather.casa  # oppure weather.meteoradar_weather
         response_variable: daily_forecast
     sensor:
       - name: "Meteo Comodino MinMax"
         unique_id: meteo_comodino_minmax
+        icon: mdi:thermometer-chevron-up-down
         state: "{{ states('weather.casa') }}"
         attributes:
-          temp_min: "{{ daily_forecast['weather.casa'].forecast[0].templow | default('--') }}"
-          temp_max: "{{ daily_forecast['weather.casa'].forecast[0].temperature | default('--') }}"
+          temp_min: "{{ (daily_forecast['weather.casa'].forecast[0].templow | round(1)) if (daily_forecast and 'weather.casa' in daily_forecast and daily_forecast['weather.casa'].forecast) else '--' }}"
+          temp_max: "{{ (daily_forecast['weather.casa'].forecast[0].temperature | round(1)) if (daily_forecast and 'weather.casa' in daily_forecast and daily_forecast['weather.casa'].forecast) else '--' }}"
