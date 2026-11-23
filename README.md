@@ -7,6 +7,7 @@
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)
 ![Home Assistant](https://img.shields.io/badge/Integrated%20with-Home%20Assistant-41BDF5?logo=homeassistant&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow.svg?logo=buy-me-a-coffee)](https://paypal.me/cannos)
 
 **La sveglia smart e cruscotto da comodino ad altissima affidabilità (WAF 100%) per Xiaomi Mi Smart Clock (MT8167S).**  
 Architettura ibrida a 4 layer, sveglia locale offline-safe al 100%, comfort notturno ambra a zero luce blu e design diurno dinamico *"Living Weather Horizon"*.
@@ -43,6 +44,13 @@ Pulsantoni gigante Snooze (+10 min) e Stop all'attivazione dell'allarme hardware
   &nbsp;&nbsp;
   <img src="docs/screenshots/04_time_selector.png" alt="Time Selector" width="375"/>
 </div>
+
+---
+
+### 🎵 Schermata Musica & Riproduzione Audio Nativa (Music Assistant & Squeezelite)
+Player musicale da comodino con riproduzione audio lossless direttamente dallo speaker integrato dello Xiaomi Mi Smart Clock tramite il client nativo Squeezelite collegato a Music Assistant 2.x (`media_player.aura_clock_comodino`).
+- **Navigazione Swipe Fluida**: Swipe orizzontale nativo tra le schermate: da Orologio a Musica verso sinistra (`←`), e da Musica a Orologio verso destra (`→`).
+- **Controlli Touch Completi**: Disco vinile rotante sincronizzato, indicatore live equalizzatore "ON AIR", regolazione volume rapida, controlli Play/Pause/Skip e 4 preset veloci (Top Hits, Chill, Rock Classics, Jazz Lounge).
 
 ---
 
@@ -156,6 +164,15 @@ AuraClock/
 ├── deploy.ps1                                 # Script di deployment automatico ADB
 └── README.md
 ```
+
+---
+
+## ☕ Supporto e Donazioni
+
+Se apprezzi questo progetto e il lavoro svolto per trasformare lo Xiaomi Mi Smart Clock in un dispositivo aperto, affidabile e completo, puoi supportare lo sviluppo offrendo un caffè:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow.svg?logo=buy-me-a-coffee)](https://paypal.me/cannos)  
+**Link per donazioni**: [https://paypal.me/cannos](https://paypal.me/cannos)
 
 ---
 
