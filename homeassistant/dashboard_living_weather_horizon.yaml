@@ -11,10 +11,8 @@ views:
         entity: weather.casa
         triggers_update:
           - sun.sun
-          - sensor.time
           - sensor.time_2
           - sensor.casa_rotondo_salotto_esterno_temperature
-          - sensor.temperatura_esterna
           - sensor.meteo_comodino_minmax
           - input_boolean.sveglia_comodino_attiva
           - input_datetime.sveglia_comodino_orario
@@ -530,7 +528,7 @@ views:
               const hh = String(now.getHours()).padStart(2, '0');
               const mm = String(now.getMinutes()).padStart(2, '0');
             
-              const sTemp = states['sensor.casa_rotondo_salotto_esterno_temperature'] || states['sensor.temperatura_esterna'];
+              const sTemp = states['sensor.casa_rotondo_salotto_esterno_temperature'];
               const tempVal = (sTemp && sTemp.state !== undefined && sTemp.state !== 'unavailable' && sTemp.state !== 'unknown') ? sTemp.state : (entity.attributes.temperature || 0);
               const temp = parseFloat(tempVal).toFixed(1);
             
@@ -1115,7 +1113,7 @@ views:
         triggers_update:
           - media_player.aura_clock_comodino
           - media_player.spotify_carmelo_rotondo
-          - sensor.time
+          - sensor.time_2
         show_icon: false
         show_name: false
         styles:
@@ -1658,7 +1656,7 @@ views:
                       <div class="m-art-card">
                         <div class="m-vinyl"></div>
                         <div class="m-vinyl-center">🎵</div>
-                        <img class="m-art-img" src="${artUrl}" onerror="this.style.display='none'; document.querySelector('.m-vinyl').style.display='block';" />
+                        <img class="m-art-img" src="${artUrl}" onerror="this.style.display='none';" />
                         ${isPlaying ? `
                           <div class="m-live-badge">
                             <div class="m-eq-bars">
@@ -1674,11 +1672,11 @@ views:
             
                       <!-- Volume Pill -->
                       <div class="m-vol-card">
-                        <div class="m-vol-btn" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'volume_set', { entity_id: 'media_player.aura_clock_comodino', volume_level: Math.max(0, ${((vol - 5)/100).toFixed(2)}) });">🔉</div>
+                        <div class="m-vol-btn" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'volume_set', { entity_id: 'media_player.aura_clock_comodino', volume_level: Math.max(0, ${((vol - 5)/100).toFixed(2)}) });">🔉</div>
                         <div class="m-vol-track">
                           <div class="m-vol-fill"></div>
                         </div>
-                        <div class="m-vol-btn" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'volume_set', { entity_id: 'media_player.aura_clock_comodino', volume_level: Math.min(1, ${((vol + 5)/100).toFixed(2)}) });">🔊</div>
+                        <div class="m-vol-btn" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'volume_set', { entity_id: 'media_player.aura_clock_comodino', volume_level: Math.min(1, ${((vol + 5)/100).toFixed(2)}) });">🔊</div>
                         <div class="m-vol-txt">${vol}%</div>
                       </div>
                     </div>
@@ -1705,15 +1703,15 @@ views:
             
                       <!-- Controls -->
                       <div class="m-ctrl-bar">
-                        <div class="m-ctrl-btn" style="color: ${isShuffle ? '#1ed760' : '#94a3b8'};" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'shuffle_set', { entity_id: 'media_player.aura_clock_comodino', shuffle: ${!isShuffle} });">🔀</div>
-                        <div class="m-ctrl-btn" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'media_previous_track', { entity_id: 'media_player.aura_clock_comodino' });">⏮️</div>
+                        <div class="m-ctrl-btn" style="color: ${isShuffle ? '#1ed760' : '#94a3b8'};" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'shuffle_set', { entity_id: 'media_player.aura_clock_comodino', shuffle: ${!isShuffle} });">🔀</div>
+                        <div class="m-ctrl-btn" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'media_previous_track', { entity_id: 'media_player.aura_clock_comodino' });">⏮️</div>
                         
-                        <div class="m-play-main" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'media_play_pause', { entity_id: 'media_player.aura_clock_comodino' });">
+                        <div class="m-play-main" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'media_play_pause', { entity_id: 'media_player.aura_clock_comodino' });">
                           ${isPlaying ? '⏸' : '▶'}
                         </div>
                         
-                        <div class="m-ctrl-btn" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'media_next_track', { entity_id: 'media_player.aura_clock_comodino' });">⏭️</div>
-                        <div class="m-ctrl-btn" style="color: ${isRepeat ? '#1ed760' : '#94a3b8'};" onclick="document.querySelector('home-assistant').hass.callService('media_player', 'repeat_set', { entity_id: 'media_player.aura_clock_comodino', repeat: '${isRepeat ? 'off' : 'all'}' });">🔁</div>
+                        <div class="m-ctrl-btn" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'media_next_track', { entity_id: 'media_player.aura_clock_comodino' });">⏭️</div>
+                        <div class="m-ctrl-btn" style="color: ${isRepeat ? '#1ed760' : '#94a3b8'};" onclick="(window.hass || document.querySelector('home-assistant')?.hass)?.callService('media_player', 'repeat_set', { entity_id: 'media_player.aura_clock_comodino', repeat: '${isRepeat ? 'off' : 'all'}' });">🔁</div>
                       </div>
             
                       <!-- Quick Presets -->
