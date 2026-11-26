@@ -22,8 +22,8 @@ class BootReceiver : BroadcastReceiver() {
             if (cachedTs > System.currentTimeMillis()) {
                 alarmManager.scheduleAlarmAt(cachedTs)
             } else {
-                // Calcola orario per la prossima occorrenza
-                alarmManager.syncAlarmFromHa(true, appConfig.entityAlarmTime)
+                // Calcola orario per la prossima occorrenza usando i valori reali in cache
+                alarmManager.syncAlarmFromHa(appConfig.alarmEnabled, appConfig.alarmTime)
             }
 
             val serviceIntent = Intent(context, AuraClockCoreService::class.java)

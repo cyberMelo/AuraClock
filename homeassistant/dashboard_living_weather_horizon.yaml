@@ -383,6 +383,7 @@ views:
           .p1-temp-main {
             display: flex;
             align-items: baseline;
+            margin-right: 22px;
           }
           .p1-temp-val {
             font-size: 64px;
@@ -407,6 +408,7 @@ views:
             padding-left: 18px;
           }
           .p1-temp-label {
+            margin-bottom: 4px;
             font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
@@ -561,6 +563,7 @@ views:
                 }, { capture: true, passive: true });
               }
             
+              window.hass = hass;
               const now = new Date();
               const giorni = ['DOMENICA','LUNEDÌ','MARTEDÌ','MERCOLEDÌ','GIOVEDÌ','VENERDÌ','SABATO'];
               const mesi = ['GENNAIO','FEBBRAIO','MARZO','APRILE','MAGGIO','GIUGNO','LUGLIO','AGOSTO','SETTEMBRE','OTTOBRE','NOVEMBRE','DICEMBRE'];
@@ -709,7 +712,7 @@ views:
                     <div class="p1-date-pill">📅 ${dateStr}</div>
                     <div style="width:130px; height:36px;"></div>
                     <div class="p1-weather-badge">
-                      <span>${icon}</span>
+                      <span style="margin-right:8px;">${icon}</span>
                       <span>${desc}${windSpeed}</span>
                     </div>
                   </div>
@@ -729,7 +732,7 @@ views:
                       <div class="p1-temp-meta">
                         <span class="p1-temp-label">🌡️ Temp. Esterna</span>
                         <div class="p1-minmax">
-                          <span style="color:#38bdf8;">↓ ${tMin}°</span>
+                          <span style="color:#38bdf8; margin-right:12px;">↓ ${tMin}°</span>
                           <span style="color:#fb923c;">↑ ${tMax}°</span>
                         </div>
                       </div>
@@ -1058,6 +1061,15 @@ views:
             - background: rgba(245, 158, 11, 0.12)
             - border: 1px solid rgba(254, 215, 170, 0.25)
             - padding: 8px 12px
+          grid:
+            - grid-template-areas: "\"sunrise\""
+            - grid-template-columns: 1fr
+            - grid-template-rows: 1fr
+          custom_fields:
+            sunrise:
+              - width: 100%
+              - height: 100%
+              - justify-self: stretch
         custom_fields:
           sunrise: |
             [[[
@@ -1074,31 +1086,91 @@ views:
                 </div>
               `;
             ]]]
-      - type: "custom:button-card"
+      - type: horizontal-stack
         view_layout:
           grid-column: 4 / 5
           grid-row: 4 / 5
-        show_icon: false
-        show_name: false
-        styles:
-          card:
-            - height: 100%
-            - background: transparent
-            - border: none
-            - padding: 0
-            - box-shadow: none
-        custom_fields:
-          chips: |
-            [[[
-              return `
-                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; height:100%;">
-                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'06:45:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">06:45</button>
-                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'07:00:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">07:00</button>
-                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'07:30:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">07:30</button>
-                  <button onclick="hass.callService('input_datetime','set_datetime',{entity_id:'input_datetime.sveglia_comodino_orario',time:'08:00:00'})" style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; border-radius:10px; font-size:11px; font-weight:800; cursor:pointer;">08:00</button>
-                </div>
-              `;
-            ]]]
+        cards:
+          - type: "custom:button-card"
+            name: "06:45"
+            show_icon: false
+            tap_action:
+              action: call-service
+              service: input_datetime.set_datetime
+              service_data:
+                entity_id: input_datetime.sveglia_comodino_orario
+                time: "06:45:00"
+            styles:
+              card:
+                - height: 38px
+                - padding: 0
+                - border-radius: 10px
+                - background: rgba(30, 41, 59, 0.85)
+                - border: 1px solid rgba(255, 255, 255, 0.16)
+              name:
+                - color: "#e2e8f0"
+                - font-size: 11px
+                - font-weight: 800
+          - type: "custom:button-card"
+            name: "07:00"
+            show_icon: false
+            tap_action:
+              action: call-service
+              service: input_datetime.set_datetime
+              service_data:
+                entity_id: input_datetime.sveglia_comodino_orario
+                time: "07:00:00"
+            styles:
+              card:
+                - height: 38px
+                - padding: 0
+                - border-radius: 10px
+                - background: rgba(30, 41, 59, 0.85)
+                - border: 1px solid rgba(255, 255, 255, 0.16)
+              name:
+                - color: "#e2e8f0"
+                - font-size: 11px
+                - font-weight: 800
+          - type: "custom:button-card"
+            name: "07:30"
+            show_icon: false
+            tap_action:
+              action: call-service
+              service: input_datetime.set_datetime
+              service_data:
+                entity_id: input_datetime.sveglia_comodino_orario
+                time: "07:30:00"
+            styles:
+              card:
+                - height: 38px
+                - padding: 0
+                - border-radius: 10px
+                - background: rgba(30, 41, 59, 0.85)
+                - border: 1px solid rgba(255, 255, 255, 0.16)
+              name:
+                - color: "#e2e8f0"
+                - font-size: 11px
+                - font-weight: 800
+          - type: "custom:button-card"
+            name: "08:00"
+            show_icon: false
+            tap_action:
+              action: call-service
+              service: input_datetime.set_datetime
+              service_data:
+                entity_id: input_datetime.sveglia_comodino_orario
+                time: "08:00:00"
+            styles:
+              card:
+                - height: 38px
+                - padding: 0
+                - border-radius: 10px
+                - background: rgba(30, 41, 59, 0.85)
+                - border: 1px solid rgba(255, 255, 255, 0.16)
+              name:
+                - color: "#e2e8f0"
+                - font-size: 11px
+                - font-weight: 800
       - type: "custom:button-card"
         entity: input_datetime.sveglia_comodino_orario
         view_layout:
@@ -1113,6 +1185,15 @@ views:
             - background: rgba(15, 23, 42, 0.65)
             - border: 1px solid rgba(255, 255, 255, 0.14)
             - padding: 0 14px
+          grid:
+            - grid-template-areas: "\"summary\""
+            - grid-template-columns: 1fr
+            - grid-template-rows: 1fr
+          custom_fields:
+            summary:
+              - width: 100%
+              - height: 100%
+              - justify-self: stretch
         custom_fields:
           summary: |
             [[[

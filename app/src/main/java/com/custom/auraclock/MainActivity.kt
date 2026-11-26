@@ -158,6 +158,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stopSunriseRamp()
+        handler.removeCallbacksAndMessages(null)
         if (isServiceBound) {
             unbindService(serviceConnection)
             isServiceBound = false
@@ -329,12 +331,16 @@ class MainActivity : AppCompatActivity() {
             binding.webViewLivingHorizon.visibility = View.INVISIBLE
             setWindowBrightness(appConfig.nightBrightness)
         } else {
+            isPeekActive = false
+            handler.removeCallbacks(peekTimeoutRunnable)
+            removeWarmFilterFromWebView()
             if (isHaReachable) {
                 binding.webViewLivingHorizon.visibility = View.VISIBLE
             }
             binding.layerNightOverlay.animate().alpha(0f).setDuration(400).withEndAction {
-                binding.layerNightOverlay.visibility = View.GONE
-                removeWarmFilterFromWebView()
+                if (!isNightMode) {
+                    binding.layerNightOverlay.visibility = View.GONE
+                }
             }.start()
         }
     }
@@ -491,6 +497,9 @@ class MainActivity : AppCompatActivity() {
     private fun triggerAlarmRingingUi() {
         runOnUiThread {
             isAlarmRinging = true
+            isPeekActive = false
+            handler.removeCallbacks(peekTimeoutRunnable)
+            removeWarmFilterFromWebView()
             stopSunriseRamp()
             setWindowBrightness(0.90f)
 
@@ -538,7 +547,7 @@ class MainActivity : AppCompatActivity() {
             }
             startService(stopIntent)
 
-            coreService?.alarmManager?.syncAlarmFromHa(true, appConfig.entityAlarmTime)
+            coreService?.alarmManager?.syncAlarmFromHa(appConfig.alarmEnabled, appConfig.alarmTime)
             coreService?.wsClient?.notifyAlarmStopped()
             updateAlarmBadge()
 
