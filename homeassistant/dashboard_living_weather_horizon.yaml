@@ -525,8 +525,8 @@ views:
               // --- AuraClock Native Horizontal Swipe Navigation ---
               if (!window.__auraSwipeAttached) {
                 window.__auraSwipeAttached = true;
-                let sX = 0, sY = 0, sT = 0;
-                window.addEventListener('touchstart', (e) => {
+                var sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', function(e) {
                   if (e.touches && e.touches.length === 1) {
                     sX = e.touches[0].clientX;
                     sY = e.touches[0].clientY;
@@ -534,27 +534,31 @@ views:
                   }
                 }, { capture: true, passive: true });
                 
-                window.addEventListener('touchend', (e) => {
+                window.addEventListener('touchend', function(e) {
                   if (e.changedTouches && e.changedTouches.length === 1) {
-                    const dX = e.changedTouches[0].clientX - sX;
-                    const dY = e.changedTouches[0].clientY - sY;
-                    const dt = Date.now() - sT;
-                    if (Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
-                      const p = window.location.pathname;
-                      const nav = (dst) => {
+                    var dX = e.changedTouches[0].clientX - sX;
+                    var dY = e.changedTouches[0].clientY - sY;
+                    var dt = Date.now() - sT;
+                    if (sT && Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      sT = 0;
+                      var nowTs = Date.now();
+                      if (window.__auraLastNavTs && (nowTs - window.__auraLastNavTs) < 400) return;
+                      var p = window.location.pathname;
+                      var nav = function(dst) {
+                        window.__auraLastNavTs = nowTs;
                         if (window.history && window.history.pushState) {
                           window.history.pushState(null, '', dst);
                         }
                         window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
                       };
                       if (dX < -60) {
-                        // Swiped LEFT: Clock -> Music (Music is to the right of Clock)
-                        if (!p.includes('/musica') && !p.includes('/orario')) {
+                        if (!p.includes('/musica') && !p.includes('/orario') && !p.includes('/radio') && !p.includes('/playlist')) {
                           nav('/lovelace-comodino/musica');
                         }
                       } else if (dX > 60) {
-                        // Swiped RIGHT: Music -> Clock (Clock is to the left of Music)
-                        if (p.includes('/musica')) {
+                        if (p.includes('/radio') || p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        } else if (p.includes('/musica')) {
                           nav('/lovelace-comodino/0');
                         }
                       }
@@ -562,6 +566,9 @@ views:
                   }
                 }, { capture: true, passive: true });
               }
+            
+            
+            
             
               window.hass = hass;
               const now = new Date();
@@ -1313,33 +1320,19 @@ views:
               - width: 120px
               - height: 84px
               - z-index: 100
-            preset_1_btn:
+            radio_nav_btn:
               - position: absolute
               - top: 338px
               - left: 286px
               - width: 242px
-              - height: 57px
+              - height: 126px
               - z-index: 100
-            preset_2_btn:
+            playlist_nav_btn:
               - position: absolute
               - top: 338px
               - left: 540px
               - width: 242px
-              - height: 57px
-              - z-index: 100
-            preset_3_btn:
-              - position: absolute
-              - top: 407px
-              - left: 286px
-              - width: 242px
-              - height: 57px
-              - z-index: 100
-            preset_4_btn:
-              - position: absolute
-              - top: 407px
-              - left: 540px
-              - width: 242px
-              - height: 57px
+              - height: 126px
               - z-index: 100
         custom_fields:
           music_view: |
@@ -1347,8 +1340,8 @@ views:
               // --- AuraClock Native Horizontal Swipe Navigation ---
               if (!window.__auraSwipeAttached) {
                 window.__auraSwipeAttached = true;
-                let sX = 0, sY = 0, sT = 0;
-                window.addEventListener('touchstart', (e) => {
+                var sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', function(e) {
                   if (e.touches && e.touches.length === 1) {
                     sX = e.touches[0].clientX;
                     sY = e.touches[0].clientY;
@@ -1356,25 +1349,31 @@ views:
                   }
                 }, { capture: true, passive: true });
                 
-                window.addEventListener('touchend', (e) => {
+                window.addEventListener('touchend', function(e) {
                   if (e.changedTouches && e.changedTouches.length === 1) {
-                    const dX = e.changedTouches[0].clientX - sX;
-                    const dY = e.changedTouches[0].clientY - sY;
-                    const dt = Date.now() - sT;
-                    if (Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
-                      const p = window.location.pathname;
-                      const nav = (dst) => {
+                    var dX = e.changedTouches[0].clientX - sX;
+                    var dY = e.changedTouches[0].clientY - sY;
+                    var dt = Date.now() - sT;
+                    if (sT && Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      sT = 0;
+                      var nowTs = Date.now();
+                      if (window.__auraLastNavTs && (nowTs - window.__auraLastNavTs) < 400) return;
+                      var p = window.location.pathname;
+                      var nav = function(dst) {
+                        window.__auraLastNavTs = nowTs;
                         if (window.history && window.history.pushState) {
                           window.history.pushState(null, '', dst);
                         }
                         window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
                       };
                       if (dX < -60) {
-                        if (!p.includes('/musica') && !p.includes('/orario')) {
+                        if (!p.includes('/musica') && !p.includes('/orario') && !p.includes('/radio') && !p.includes('/playlist')) {
                           nav('/lovelace-comodino/musica');
                         }
                       } else if (dX > 60) {
-                        if (p.includes('/musica')) {
+                        if (p.includes('/radio') || p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        } else if (p.includes('/musica')) {
                           nav('/lovelace-comodino/0');
                         }
                       }
@@ -1382,6 +1381,9 @@ views:
                   }
                 }, { capture: true, passive: true });
               }
+            
+            
+            
             
               window.hass = hass;
               const clockPlayer = states['media_player.aura_clock_comodino'];
@@ -2005,15 +2007,364 @@ views:
                   - color: "#1ed760"
                   - width: 38px
                   - height: 38px
-          preset_1_btn:
+          radio_nav_btn:
             card:
               type: "custom:button-card"
-              name: Radio 105
+              name: RADIO
+              label: 5 Stazioni Live
               icon: "mdi:radio"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 42px
+              tap_action:
+                action: navigate
+                navigation_path: /lovelace-comodino/radio
+              styles:
+                card:
+                  - width: 242px
+                  - height: 126px
+                  - background: linear-gradient(145deg, rgba(251, 146, 60, 0.14) 0%, rgba(15, 23, 42, 0.88) 100%)
+                  - border: 1.5px solid rgba(251, 146, 60, 0.55)
+                  - border-radius: 20px
+                  - padding: 16px
+                  - box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4)
+                grid:
+                  - grid-template-areas: "\"i\" \"n\" \"l\""
+                  - grid-template-columns: 1fr
+                  - grid-template-rows: 48px auto auto
+                  - row-gap: 4px
+                icon:
+                  - color: "#fb923c"
+                  - width: 42px
+                  - height: 42px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 18px
+                  - font-weight: 800
+                  - letter-spacing: 0.8px
+                  - justify-self: center
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 12px
+                  - font-weight: 700
+                  - justify-self: center
+          playlist_nav_btn:
+            card:
+              type: "custom:button-card"
+              name: PLAYLIST
+              label: 6 Mix Libreria
+              icon: "mdi:playlist-music"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 42px
+              tap_action:
+                action: navigate
+                navigation_path: /lovelace-comodino/playlist
+              styles:
+                card:
+                  - width: 242px
+                  - height: 126px
+                  - background: linear-gradient(145deg, rgba(30, 215, 96, 0.14) 0%, rgba(15, 23, 42, 0.88) 100%)
+                  - border: 1.5px solid rgba(30, 215, 96, 0.55)
+                  - border-radius: 20px
+                  - padding: 16px
+                  - box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4)
+                grid:
+                  - grid-template-areas: "\"i\" \"n\" \"l\""
+                  - grid-template-columns: 1fr
+                  - grid-template-rows: 48px auto auto
+                  - row-gap: 4px
+                icon:
+                  - color: "#1ed760"
+                  - width: 42px
+                  - height: 42px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 18px
+                  - font-weight: 800
+                  - letter-spacing: 0.8px
+                  - justify-self: center
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 12px
+                  - font-weight: 700
+                  - justify-self: center
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+  - title: Radio
+    path: radio
+    panel: true
+    background: "#060913"
+    cards:
+      - type: "custom:button-card"
+        entity: media_player.aura_clock_comodino
+        triggers_update:
+          - media_player.aura_clock_comodino
+        show_icon: false
+        show_name: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        styles:
+          card:
+            - width: 800px
+            - height: 480px
+            - border-radius: 0px
+            - border: none
+            - padding: 0
+            - margin: 0
+            - position: relative
+            - overflow: hidden
+            - zoom: 0.666667
+            - background: "#060913"
+          custom_fields:
+            header_view:
+              - position: absolute
+              - top: 0px
+              - left: 0px
+              - width: 800px
+              - height: 480px
+              - z-index: 1
+            back_btn:
+              - position: absolute
+              - top: 14px
+              - left: 604px
+              - width: 178px
+              - height: 48px
+              - z-index: 100
+            radio_1:
+              - position: absolute
+              - top: 82px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            radio_2:
+              - position: absolute
+              - top: 82px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            radio_3:
+              - position: absolute
+              - top: 214px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            radio_4:
+              - position: absolute
+              - top: 214px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            radio_5:
+              - position: absolute
+              - top: 346px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            radio_stop:
+              - position: absolute
+              - top: 346px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+        custom_fields:
+          header_view: |
+            [[[
+              // --- AuraClock Native Horizontal Swipe Navigation ---
+              if (!window.__auraSwipeAttached) {
+                window.__auraSwipeAttached = true;
+                var sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', function(e) {
+                  if (e.touches && e.touches.length === 1) {
+                    sX = e.touches[0].clientX;
+                    sY = e.touches[0].clientY;
+                    sT = Date.now();
+                  }
+                }, { capture: true, passive: true });
+                
+                window.addEventListener('touchend', function(e) {
+                  if (e.changedTouches && e.changedTouches.length === 1) {
+                    var dX = e.changedTouches[0].clientX - sX;
+                    var dY = e.changedTouches[0].clientY - sY;
+                    var dt = Date.now() - sT;
+                    if (sT && Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      sT = 0;
+                      var nowTs = Date.now();
+                      if (window.__auraLastNavTs && (nowTs - window.__auraLastNavTs) < 400) return;
+                      var p = window.location.pathname;
+                      var nav = function(dst) {
+                        window.__auraLastNavTs = nowTs;
+                        if (window.history && window.history.pushState) {
+                          window.history.pushState(null, '', dst);
+                        }
+                        window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
+                      };
+                      if (dX < -60) {
+                        if (!p.includes('/musica') && !p.includes('/orario') && !p.includes('/radio') && !p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        }
+                      } else if (dX > 60) {
+                        if (p.includes('/radio') || p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        } else if (p.includes('/musica')) {
+                          nav('/lovelace-comodino/0');
+                        }
+                      }
+                    }
+                  }
+                }, { capture: true, passive: true });
+              }
+              window.hass = hass;
+              var p = states['media_player.aura_clock_comodino'];
+              var isPlaying = p && p.state === 'playing';
+              var nowTitle = (p && p.attributes && p.attributes.media_title) ? p.attributes.media_title : 'Scegli una stazione radio';
+              return `
+                <style>
+                  .sp-root {
+                    width: 800px;
+                    height: 480px;
+                    position: relative;
+                    overflow: hidden;
+                    background: #060913;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    color: #ffffff;
+                    user-select: none;
+                    pointer-events: none;
+                  }
+                  .sp-glow-1 {
+                    position: absolute;
+                    top: -60px;
+                    left: -40px;
+                    width: 380px;
+                    height: 380px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(251, 146, 60, 0.16) 0%, transparent 70%);
+                    filter: blur(50px);
+                  }
+                  .sp-badge {
+                    position: absolute;
+                    top: 19px;
+                    left: 18px;
+                    height: 38px;
+                    padding: 0 18px;
+                    border-radius: 999px;
+                    background: rgba(251, 146, 60, 0.16);
+                    border: 1px solid rgba(251, 146, 60, 0.45);
+                    color: #fb923c;
+                    display: flex;
+                    align-items: center;
+                    font-size: 13px;
+                    font-weight: 800;
+                    letter-spacing: 0.8px;
+                    box-sizing: border-box;
+                  }
+                  .sp-now {
+                    position: absolute;
+                    top: 19px;
+                    left: 224px;
+                    width: 360px;
+                    height: 38px;
+                    padding: 0 16px;
+                    border-radius: 999px;
+                    background: rgba(15, 23, 42, 0.78);
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    color: #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    font-size: 12px;
+                    font-weight: 700;
+                    box-sizing: border-box;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                  .sp-dot {
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    margin-right: 9px;
+                    flex-shrink: 0;
+                    background: ${isPlaying ? '#1ed760' : '#64748b'};
+                    box-shadow: ${isPlaying ? '0 0 8px #1ed760' : 'none'};
+                  }
+                </style>
+                <div class="sp-root">
+                  <div class="sp-glow-1"></div>
+                  <div class="sp-badge">STAZIONI RADIO</div>
+                  <div class="sp-now">
+                    <span class="sp-dot"></span>
+                    <span>${isPlaying ? 'In onda: ' + nowTitle : 'Scegli una stazione radio'}</span>
+                  </div>
+                </div>
+              `;
+            ]]]
+          back_btn:
+            card:
+              type: "custom:button-card"
+              name: MUSICA
+              icon: "mdi:arrow-left"
               layout: icon_name
               show_icon: true
               show_name: true
-              size: 24px
+              size: 20px
+              tap_action:
+                action: navigate
+                navigation_path: /lovelace-comodino/musica
+              styles:
+                card:
+                  - width: 178px
+                  - height: 48px
+                  - background: rgba(15, 23, 42, 0.88)
+                  - border: 1.5px solid rgba(30, 215, 96, 0.6)
+                  - border-radius: 999px
+                  - padding: 0 18px
+                  - box-shadow: 0 0 18px rgba(30, 215, 96, 0.25)
+                grid:
+                  - grid-template-areas: "\"i n\""
+                  - grid-template-columns: 22px auto
+                  - justify-content: center
+                  - column-gap: 8px
+                icon:
+                  - color: "#1ed760"
+                  - width: 20px
+                  - height: 20px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - font-size: 13px
+                  - font-weight: 800
+                  - letter-spacing: 1px
+                  - color: "#1ed760"
+                  - justify-self: start
+                  - align-self: center
+          radio_1:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Radio 105
+              label: Musica e intrattenimento
+              icon: "mdi:radio"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
               tap_action:
                 action: call-service
                 service: music_assistant.play_media
@@ -2024,40 +2375,47 @@ views:
                   enqueue: replace
               styles:
                 card:
-                  - width: 242px
-                  - height: 57px
-                  - background: rgba(15, 23, 42, 0.85)
-                  - border: 1px solid rgba(255, 255, 255, 0.16)
-                  - border-radius: 16px
-                  - padding: 0 16px
-                  - box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3)
+                  - width: 374px
+                  - height: 116px
+                  - background: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Radio 105') !== -1) ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)'; ]]]"
+                  - border: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Radio 105') !== -1) ? '2px solid #fb923c' : '1px solid rgba(255, 255, 255, 0.16)'; ]]]"
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
                 grid:
-                  - grid-template-areas: "\"i n\""
-                  - grid-template-columns: 32px 1fr
-                  - grid-template-rows: 1fr
-                  - column-gap: 8px
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
                 icon:
                   - color: "#fb923c"
-                  - width: 24px
-                  - height: 24px
+                  - width: 38px
+                  - height: 38px
                   - justify-self: center
                   - align-self: center
                 name:
-                  - color: "#f1f5f9"
-                  - font-size: 15px
+                  - color: "#ffffff"
+                  - font-size: 19px
                   - font-weight: 800
-                  - letter-spacing: 0.2px
                   - justify-self: start
-                  - align-self: center
-          preset_2_btn:
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          radio_2:
             card:
               type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
               name: RDS Successi
+              label: 100% Grandi Successi
               icon: "mdi:music-note"
-              layout: icon_name
               show_icon: true
               show_name: true
-              size: 24px
+              show_label: true
+              size: 38px
               tap_action:
                 action: call-service
                 service: music_assistant.play_media
@@ -2068,40 +2426,149 @@ views:
                   enqueue: replace
               styles:
                 card:
-                  - width: 242px
-                  - height: 57px
-                  - background: rgba(15, 23, 42, 0.85)
-                  - border: 1px solid rgba(255, 255, 255, 0.16)
-                  - border-radius: 16px
-                  - padding: 0 16px
-                  - box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3)
+                  - width: 374px
+                  - height: 116px
+                  - background: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('RDS') !== -1) ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)'; ]]]"
+                  - border: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('RDS') !== -1) ? '2px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.16)'; ]]]"
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
                 grid:
-                  - grid-template-areas: "\"i n\""
-                  - grid-template-columns: 32px 1fr
-                  - grid-template-rows: 1fr
-                  - column-gap: 8px
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
                 icon:
                   - color: "#38bdf8"
-                  - width: 24px
-                  - height: 24px
+                  - width: 38px
+                  - height: 38px
                   - justify-self: center
                   - align-self: center
                 name:
-                  - color: "#f1f5f9"
-                  - font-size: 15px
+                  - color: "#ffffff"
+                  - font-size: 19px
                   - font-weight: 800
-                  - letter-spacing: 0.2px
                   - justify-self: start
-                  - align-self: center
-          preset_3_btn:
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          radio_3:
             card:
               type: "custom:button-card"
-              name: Virgin Radio
-              icon: "mdi:guitar-electric"
-              layout: icon_name
+              entity: media_player.aura_clock_comodino
+              name: RTL 102.5
+              label: Very Normal People
+              icon: "mdi:broadcast"
               show_icon: true
               show_name: true
-              size: 24px
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://radio/3"
+                  media_type: radio
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('RTL') !== -1) ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)'; ]]]"
+                  - border: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('RTL') !== -1) ? '2px solid #a78bfa' : '1px solid rgba(255, 255, 255, 0.16)'; ]]]"
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#a78bfa"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          radio_4:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Radio Kiss Kiss
+              label: Play Everywhere
+              icon: "mdi:radio-fm"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://radio/4"
+                  media_type: radio
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Kiss Kiss') !== -1) ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)'; ]]]"
+                  - border: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Kiss Kiss') !== -1) ? '2px solid #facc15' : '1px solid rgba(255, 255, 255, 0.16)'; ]]]"
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#facc15"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          radio_5:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Virgin Radio
+              label: Style Rock
+              icon: "mdi:guitar-electric"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
               tap_action:
                 action: call-service
                 service: music_assistant.play_media
@@ -2112,40 +2579,350 @@ views:
                   enqueue: replace
               styles:
                 card:
-                  - width: 242px
-                  - height: 57px
-                  - background: rgba(15, 23, 42, 0.85)
-                  - border: 1px solid rgba(255, 255, 255, 0.16)
-                  - border-radius: 16px
-                  - padding: 0 16px
-                  - box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3)
+                  - width: 374px
+                  - height: 116px
+                  - background: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Virgin') !== -1) ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.85)'; ]]]"
+                  - border: "[[[ var t = (entity && entity.attributes && entity.attributes.media_title) ? entity.attributes.media_title : ''; return (entity && entity.state === 'playing' && t.indexOf('Virgin') !== -1) ? '2px solid #f43f5e' : '1px solid rgba(255, 255, 255, 0.16)'; ]]]"
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
                 grid:
-                  - grid-template-areas: "\"i n\""
-                  - grid-template-columns: 32px 1fr
-                  - grid-template-rows: 1fr
-                  - column-gap: 8px
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
                 icon:
                   - color: "#f43f5e"
-                  - width: 24px
-                  - height: 24px
+                  - width: 38px
+                  - height: 38px
                   - justify-self: center
                   - align-self: center
                 name:
-                  - color: "#f1f5f9"
-                  - font-size: 15px
+                  - color: "#ffffff"
+                  - font-size: 19px
                   - font-weight: 800
-                  - letter-spacing: 0.2px
                   - justify-self: start
-                  - align-self: center
-          preset_4_btn:
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          radio_stop:
             card:
               type: "custom:button-card"
-              name: Mix Libreria
-              icon: "mdi:playlist-music"
+              entity: media_player.aura_clock_comodino
+              name: Ferma Audio
+              label: Spegni riproduzione
+              icon: "mdi:stop-circle-outline"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: media_player.media_stop
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#94a3b8"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+  - title: Playlist
+    path: playlist
+    panel: true
+    background: "#060913"
+    cards:
+      - type: "custom:button-card"
+        entity: media_player.aura_clock_comodino
+        triggers_update:
+          - media_player.aura_clock_comodino
+        show_icon: false
+        show_name: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        styles:
+          card:
+            - width: 800px
+            - height: 480px
+            - border-radius: 0px
+            - border: none
+            - padding: 0
+            - margin: 0
+            - position: relative
+            - overflow: hidden
+            - zoom: 0.666667
+            - background: "#060913"
+          custom_fields:
+            header_view:
+              - position: absolute
+              - top: 0px
+              - left: 0px
+              - width: 800px
+              - height: 480px
+              - z-index: 1
+            back_btn:
+              - position: absolute
+              - top: 14px
+              - left: 604px
+              - width: 178px
+              - height: 48px
+              - z-index: 100
+            pl_1:
+              - position: absolute
+              - top: 82px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            pl_2:
+              - position: absolute
+              - top: 82px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            pl_3:
+              - position: absolute
+              - top: 214px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            pl_4:
+              - position: absolute
+              - top: 214px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            pl_5:
+              - position: absolute
+              - top: 346px
+              - left: 18px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+            pl_6:
+              - position: absolute
+              - top: 346px
+              - left: 408px
+              - width: 374px
+              - height: 116px
+              - z-index: 100
+        custom_fields:
+          header_view: |
+            [[[
+              // --- AuraClock Native Horizontal Swipe Navigation ---
+              if (!window.__auraSwipeAttached) {
+                window.__auraSwipeAttached = true;
+                var sX = 0, sY = 0, sT = 0;
+                window.addEventListener('touchstart', function(e) {
+                  if (e.touches && e.touches.length === 1) {
+                    sX = e.touches[0].clientX;
+                    sY = e.touches[0].clientY;
+                    sT = Date.now();
+                  }
+                }, { capture: true, passive: true });
+                
+                window.addEventListener('touchend', function(e) {
+                  if (e.changedTouches && e.changedTouches.length === 1) {
+                    var dX = e.changedTouches[0].clientX - sX;
+                    var dY = e.changedTouches[0].clientY - sY;
+                    var dt = Date.now() - sT;
+                    if (sT && Math.abs(dX) >= 60 && Math.abs(dY) <= 80 && dt < 800) {
+                      sT = 0;
+                      var nowTs = Date.now();
+                      if (window.__auraLastNavTs && (nowTs - window.__auraLastNavTs) < 400) return;
+                      var p = window.location.pathname;
+                      var nav = function(dst) {
+                        window.__auraLastNavTs = nowTs;
+                        if (window.history && window.history.pushState) {
+                          window.history.pushState(null, '', dst);
+                        }
+                        window.dispatchEvent(new CustomEvent('location-changed', { detail: { replace: false } }));
+                      };
+                      if (dX < -60) {
+                        if (!p.includes('/musica') && !p.includes('/orario') && !p.includes('/radio') && !p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        }
+                      } else if (dX > 60) {
+                        if (p.includes('/radio') || p.includes('/playlist')) {
+                          nav('/lovelace-comodino/musica');
+                        } else if (p.includes('/musica')) {
+                          nav('/lovelace-comodino/0');
+                        }
+                      }
+                    }
+                  }
+                }, { capture: true, passive: true });
+              }
+              window.hass = hass;
+              var p = states['media_player.aura_clock_comodino'];
+              var isPlaying = p && p.state === 'playing';
+              var nowTitle = (p && p.attributes && p.attributes.media_title) ? p.attributes.media_title : 'Scegli una playlist locale';
+              return `
+                <style>
+                  .sp-root {
+                    width: 800px;
+                    height: 480px;
+                    position: relative;
+                    overflow: hidden;
+                    background: #060913;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    color: #ffffff;
+                    user-select: none;
+                    pointer-events: none;
+                  }
+                  .sp-glow-1 {
+                    position: absolute;
+                    top: -60px;
+                    left: -40px;
+                    width: 380px;
+                    height: 380px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(30, 215, 96, 0.16) 0%, transparent 70%);
+                    filter: blur(50px);
+                  }
+                  .sp-badge {
+                    position: absolute;
+                    top: 19px;
+                    left: 18px;
+                    height: 38px;
+                    padding: 0 18px;
+                    border-radius: 999px;
+                    background: rgba(30, 215, 96, 0.16);
+                    border: 1px solid rgba(30, 215, 96, 0.45);
+                    color: #1ed760;
+                    display: flex;
+                    align-items: center;
+                    font-size: 13px;
+                    font-weight: 800;
+                    letter-spacing: 0.8px;
+                    box-sizing: border-box;
+                  }
+                  .sp-now {
+                    position: absolute;
+                    top: 19px;
+                    left: 224px;
+                    width: 360px;
+                    height: 38px;
+                    padding: 0 16px;
+                    border-radius: 999px;
+                    background: rgba(15, 23, 42, 0.78);
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    color: #e2e8f0;
+                    display: flex;
+                    align-items: center;
+                    font-size: 12px;
+                    font-weight: 700;
+                    box-sizing: border-box;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                  .sp-dot {
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    margin-right: 9px;
+                    flex-shrink: 0;
+                    background: ${isPlaying ? '#1ed760' : '#64748b'};
+                    box-shadow: ${isPlaying ? '0 0 8px #1ed760' : 'none'};
+                  }
+                </style>
+                <div class="sp-root">
+                  <div class="sp-glow-1"></div>
+                  <div class="sp-badge">PLAYLIST LIBRERIA</div>
+                  <div class="sp-now">
+                    <span class="sp-dot"></span>
+                    <span>${isPlaying ? 'In onda: ' + nowTitle : 'Scegli una playlist locale'}</span>
+                  </div>
+                </div>
+              `;
+            ]]]
+          back_btn:
+            card:
+              type: "custom:button-card"
+              name: MUSICA
+              icon: "mdi:arrow-left"
               layout: icon_name
               show_icon: true
               show_name: true
-              size: 24px
+              size: 20px
+              tap_action:
+                action: navigate
+                navigation_path: /lovelace-comodino/musica
+              styles:
+                card:
+                  - width: 178px
+                  - height: 48px
+                  - background: rgba(15, 23, 42, 0.88)
+                  - border: 1.5px solid rgba(30, 215, 96, 0.6)
+                  - border-radius: 999px
+                  - padding: 0 18px
+                  - box-shadow: 0 0 18px rgba(30, 215, 96, 0.25)
+                grid:
+                  - grid-template-areas: "\"i n\""
+                  - grid-template-columns: 22px auto
+                  - justify-content: center
+                  - column-gap: 8px
+                icon:
+                  - color: "#1ed760"
+                  - width: 20px
+                  - height: 20px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - font-size: 13px
+                  - font-weight: 800
+                  - letter-spacing: 1px
+                  - color: "#1ed760"
+                  - justify-self: start
+                  - align-self: center
+          pl_1:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Infinite Mix
+              label: Mix libreria • 23 brani
+              icon: "mdi:infinity"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
               tap_action:
                 action: call-service
                 service: music_assistant.play_media
@@ -2156,32 +2933,288 @@ views:
                   enqueue: replace
               styles:
                 card:
-                  - width: 242px
-                  - height: 57px
+                  - width: 374px
+                  - height: 116px
                   - background: rgba(15, 23, 42, 0.85)
                   - border: 1px solid rgba(255, 255, 255, 0.16)
-                  - border-radius: 16px
-                  - padding: 0 16px
-                  - box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
                 grid:
-                  - grid-template-areas: "\"i n\""
-                  - grid-template-columns: 32px 1fr
-                  - grid-template-rows: 1fr
-                  - column-gap: 8px
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
                 icon:
                   - color: "#1ed760"
-                  - width: 24px
-                  - height: 24px
+                  - width: 38px
+                  - height: 38px
                   - justify-self: center
                   - align-self: center
                 name:
-                  - color: "#f1f5f9"
-                  - font-size: 15px
+                  - color: "#ffffff"
+                  - font-size: 19px
                   - font-weight: 800
-                  - letter-spacing: 0.2px
                   - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          pl_2:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Mix Preferiti
+              label: Brani preferiti • 22 brani
+              icon: "mdi:heart-multiple"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://playlist/32"
+                  media_type: playlist
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#f43f5e"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
                   - align-self: center
-        tap_action:
-          action: none
-        hold_action:
-          action: none
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          pl_3:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Tutti i Preferiti
+              label: Raccolta completa • 54 brani
+              icon: "mdi:heart"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://playlist/24"
+                  media_type: playlist
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#ec4899"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          pl_4:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Mix Casuale
+              label: Selezione random • 96 brani
+              icon: "mdi:shuffle-variant"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://playlist/27"
+                  media_type: playlist
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#38bdf8"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          pl_5:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Aggiunti di Recente
+              label: Ultime aggiunte • 92 brani
+              icon: "mdi:clock-plus-outline"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://playlist/29"
+                  media_type: playlist
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#fb923c"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
+          pl_6:
+            card:
+              type: "custom:button-card"
+              entity: media_player.aura_clock_comodino
+              name: Artista Casuale
+              label: Brani di un artista • 22 brani
+              icon: "mdi:account-music"
+              show_icon: true
+              show_name: true
+              show_label: true
+              size: 38px
+              tap_action:
+                action: call-service
+                service: music_assistant.play_media
+                service_data:
+                  entity_id: media_player.aura_clock_comodino
+                  media_id: "library://playlist/25"
+                  media_type: playlist
+                  enqueue: replace
+              styles:
+                card:
+                  - width: 374px
+                  - height: 116px
+                  - background: rgba(15, 23, 42, 0.85)
+                  - border: 1px solid rgba(255, 255, 255, 0.16)
+                  - border-radius: 20px
+                  - padding: 0 22px
+                  - box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35)
+                grid:
+                  - grid-template-areas: "\"i n\" \"i l\""
+                  - grid-template-columns: 56px 1fr
+                  - grid-template-rows: 1fr 1fr
+                  - column-gap: 14px
+                icon:
+                  - color: "#a78bfa"
+                  - width: 38px
+                  - height: 38px
+                  - justify-self: center
+                  - align-self: center
+                name:
+                  - color: "#ffffff"
+                  - font-size: 19px
+                  - font-weight: 800
+                  - justify-self: start
+                  - align-self: end
+                label:
+                  - color: "#94a3b8"
+                  - font-size: 13px
+                  - font-weight: 600
+                  - justify-self: start
+                  - align-self: start
