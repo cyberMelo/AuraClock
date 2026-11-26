@@ -5,7 +5,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.database.ContentObserver
 import android.graphics.Color
+import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var lightSensorController: LightSensorController
     private lateinit var hardwareKeyHandler: HardwareKeyHandler
+    private var oemKeyObserver: ContentObserver? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private val mainScope = CoroutineScope(Dispatchers.Main + Job())
@@ -63,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     private var isPeekActive = false
     private var isSettingsOpen = false
     private var isHaReachable = true
+    private var volumeToast: Toast? = null
 
     // Anti-burn-in Pixel Shift
     private var pixelShiftIndex = 0
@@ -100,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             onSnooze = { onSnoozeTriggered() },
             onStopAlarm = { onStopAlarmTriggered() },
             onPeek = { onPeekTriggered() },
-            onAdjustBrightness = { delta -> onAdjustBrightness(delta) },
+            onAdjustVolume = { direction -> onAdjustVolume(direction) },
             onToggleBedsideLight = { onToggleBedsideLight() }
         )
 
@@ -115,6 +120,7 @@ class MainActivity : AppCompatActivity() {
         setupSecretTapTarget()
         setupSettingsOverlay()
         setupAlarmOverlay()
+        setupOemKeyObserver()
         setupWebView()
         startPixelShiftLoop()
 
@@ -158,6 +164,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        oemKeyObserver?.let { contentResolver.unregisterContentObserver(it) }
+        oemKeyObserver = null
         stopSunriseRamp()
         handler.removeCallbacksAndMessages(null)
         if (isServiceBound) {
@@ -562,13 +570,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onAdjustBrightness(delta: Float) {
+    private fun onAdjustVolume(direction: Int) {
         runOnUiThread {
-            val lp = window.attributes
-            val current = if (lp.screenBrightness < 0) 0.5f else lp.screenBrightness
-            val newBri = (current + delta).coerceIn(0.10f, 1.0f)
-            setWindowBrightness(newBri)
-            Toast.makeText(this, "Luminosità: ${(newBri * 100).toInt()}%", Toast.LENGTH_SHORT).show()
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+            val currentVol = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+            val step = (maxVol / 20).coerceAtLeast(1) // step da ~5% (5 su scala 0..100)
+            val newVol = (currentVol + direction * step).coerceIn(0, maxVol)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, 0)
+
+            val level = newVol.toFloat() / maxVol.toFloat()
+            coreService?.wsClient?.setMediaVolume(level)
+
+            val pct = (level * 100).toInt()
+            volumeToast?.cancel()
+            volumeToast = Toast.makeText(this, "🔊 Volume: $pct%", Toast.LENGTH_SHORT).also { it.show() }
         }
     }
 
@@ -651,8 +667,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // Mappatura Tasti Fisici e Dispatch KeyEvent
+    // Mappatura Tasti Fisici, Observer OEM Xiaomi e Dispatch KeyEvent
     // =========================================================================
+
+    private fun setupOemKeyObserver() {
+        val uriVolUp = Settings.Secure.getUriFor(OEM_KEY_VOL_UP)
+        val uriVolDown = Settings.Secure.getUriFor(OEM_KEY_VOL_DOWN)
+        val observer = object : ContentObserver(handler) {
+            override fun onChange(selfChange: Boolean, uri: Uri?) {
+                val (keyName, keyCode) = when (uri) {
+                    uriVolUp -> OEM_KEY_VOL_UP to KeyEvent.KEYCODE_VOLUME_UP
+                    uriVolDown -> OEM_KEY_VOL_DOWN to KeyEvent.KEYCODE_VOLUME_DOWN
+                    else -> return
+                }
+                val state = Settings.Secure.getInt(contentResolver, keyName, 0)
+                Log.i(TAG, "OEM key observer: $keyName=$state")
+                if (state == 1) {
+                    dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+                }
+            }
+        }
+        contentResolver.registerContentObserver(uriVolUp, false, observer)
+        contentResolver.registerContentObserver(uriVolDown, false, observer)
+        oemKeyObserver = observer
+    }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         val currentContext = when {
@@ -716,5 +754,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MainActivity"
         const val EXTRA_ALARM_TRIGGER = "extra_alarm_trigger"
+        private const val OEM_KEY_VOL_UP = "oem_keycode_24"
+        private const val OEM_KEY_VOL_DOWN = "oem_keycode_25"
     }
 }

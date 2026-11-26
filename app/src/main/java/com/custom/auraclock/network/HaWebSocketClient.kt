@@ -212,6 +212,28 @@ class HaWebSocketClient(
         }
     }
 
+    fun setMediaVolume(volumeLevel: Float) {
+        if (!isConnected) return
+        try {
+            val id = msgIdCounter.incrementAndGet()
+            val clamped = volumeLevel.coerceIn(0f, 1f)
+            val msg = JSONObject().apply {
+                put("id", id)
+                put("type", "call_service")
+                put("domain", "media_player")
+                put("service", "volume_set")
+                put("service_data", JSONObject().apply {
+                    put("entity_id", appConfig.entityMediaPlayer)
+                    put("volume_level", clamped.toDouble())
+                })
+            }
+            webSocket?.send(msg.toString())
+            Log.i(TAG, "Inviato media_player.volume_set=${"%.2f".format(clamped)} a ${appConfig.entityMediaPlayer}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Errore invio media_player.volume_set: ${e.message}")
+        }
+    }
+
     fun toggleBedsideLight() {
         if (!isConnected) return
         try {

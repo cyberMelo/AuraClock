@@ -43,6 +43,10 @@ class AppConfig(context: Context) {
         get() = prefs.getString(KEY_ENTITY_BEDSIDE_LIGHT, DEFAULT_ENTITY_BEDSIDE_LIGHT) ?: DEFAULT_ENTITY_BEDSIDE_LIGHT
         set(value) = prefs.edit().putString(KEY_ENTITY_BEDSIDE_LIGHT, value).apply()
 
+    var entityMediaPlayer: String
+        get() = prefs.getString(KEY_ENTITY_MEDIA_PLAYER, DEFAULT_ENTITY_MEDIA_PLAYER) ?: DEFAULT_ENTITY_MEDIA_PLAYER
+        set(value) = prefs.edit().putString(KEY_ENTITY_MEDIA_PLAYER, value).apply()
+
     var luxNightEnter: Float
         get() = prefs.getFloat(KEY_LUX_NIGHT_ENTER, DEFAULT_LUX_NIGHT_ENTER)
         set(value) = prefs.edit().putFloat(KEY_LUX_NIGHT_ENTER, value).apply()
@@ -139,6 +143,7 @@ class AppConfig(context: Context) {
         const val KEY_ENTITY_EXT_TEMP = "entity_ext_temp"
         const val KEY_ENTITY_WEATHER = "entity_weather"
         const val KEY_ENTITY_BEDSIDE_LIGHT = "entity_bedside_light"
+        const val KEY_ENTITY_MEDIA_PLAYER = "entity_media_player"
         const val KEY_LUX_NIGHT_ENTER = "lux_night_enter"
         const val KEY_LUX_NIGHT_EXIT = "lux_night_exit"
         const val KEY_NIGHT_PEEK_DURATION_SEC = "night_peek_duration_sec"
@@ -162,6 +167,7 @@ class AppConfig(context: Context) {
         const val DEFAULT_ENTITY_EXT_TEMP = "sensor.casa_rotondo_salotto_esterno_temperature"
         const val DEFAULT_ENTITY_WEATHER = "weather.casa"
         const val DEFAULT_ENTITY_BEDSIDE_LIGHT = "light.luce_comodino"
+        const val DEFAULT_ENTITY_MEDIA_PLAYER = "media_player.aura_clock_comodino"
         const val DEFAULT_LUX_NIGHT_ENTER = 2.0f
         const val DEFAULT_LUX_NIGHT_EXIT = 8.0f
         const val DEFAULT_NIGHT_PEEK_DURATION_SEC = 15

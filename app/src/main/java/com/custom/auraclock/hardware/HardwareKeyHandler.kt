@@ -6,7 +6,7 @@ class HardwareKeyHandler(
     var onSnooze: (() -> Unit)? = null,
     var onStopAlarm: (() -> Unit)? = null,
     var onPeek: (() -> Unit)? = null,
-    var onAdjustBrightness: ((Float) -> Unit)? = null,
+    var onAdjustVolume: ((Int) -> Unit)? = null,
     var onToggleBedsideLight: (() -> Unit)? = null
 ) {
 
@@ -39,29 +39,15 @@ class HardwareKeyHandler(
                 }
             }
 
-            UIContext.NIGHT_ACTIVE -> {
-                when (keyCode) {
-                    KeyEvent.KEYCODE_VOLUME_UP, KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        onPeek?.invoke()
-                        return true
-                    }
-                    KeyEvent.KEYCODE_MUTE,
-                    KeyEvent.KEYCODE_VOLUME_MUTE,
-                    91, 131, 164 -> {
-                        onToggleBedsideLight?.invoke()
-                        return true
-                    }
-                }
-            }
-
+            UIContext.NIGHT_ACTIVE,
             UIContext.DAY_OR_PEEK -> {
                 when (keyCode) {
                     KeyEvent.KEYCODE_VOLUME_UP -> {
-                        onAdjustBrightness?.invoke(+0.15f)
+                        onAdjustVolume?.invoke(+1)
                         return true
                     }
                     KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                        onAdjustBrightness?.invoke(-0.15f)
+                        onAdjustVolume?.invoke(-1)
                         return true
                     }
                     KeyEvent.KEYCODE_MUTE,
